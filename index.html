@@ -5,9 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>认知训练卡片制作</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --cream:#FAF7F2;--warm:#F0EBE1;--border:#DDD5C8;--text:#2C2416;--muted:#8A7F72;
@@ -19,12 +16,12 @@
   --sh2:0 2px 8px rgba(44,36,22,.1),0 8px 24px rgba(44,36,22,.1);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Noto Sans SC',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
+body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
 
 /* ── 页头 ── */
-.hd{background:var(–accent);color:#FAF7F2;padding:15px 20px;display:flex;align-items:center;gap:12px}
-.hd-title{font-family:‘Noto Serif SC’,serif;font-size:18px;font-weight:700;letter-spacing:.5px}
-.hd-sub{font-size:11px;opacity:.6;margin-top:2px}
+.app-header{background:var(–accent);color:#FAF7F2;padding:15px 20px;display:flex;align-items:center;gap:12px}
+.app-header-title{font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px}
+.app-header-sub{font-size:11px;opacity:.6;margin-top:2px}
 
 /* ── 步骤条 ── */
 .steps{display:flex;background:#fff;border-bottom:1px solid var(–border)}
@@ -49,12 +46,12 @@ STEP 0：选择模式
 .mc-hd{display:flex;align-items:center;gap:10px;margin-bottom:13px}
 .mc-ico{width:34px;height:34px;border-radius:9px;background:var(–warm);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
 .mode-card.sel .mc-ico{background:var(–accent-l)}
-.mc-ttl{font-size:15px;font-weight:600;font-family:‘Noto Serif SC’,serif}
+.mc-ttl{font-size:15px;font-weight:600;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif}
 .mc-sub{font-size:12px;color:var(–muted);margin-top:1px}
 .f-label{font-size:12px;color:var(–muted);font-weight:500;margin-bottom:5px}
-.f-input{border:1.5px solid var(–border);border-radius:8px;padding:10px 12px;font-size:15px;font-family:‘Noto Sans SC’,sans-serif;background:var(–cream);color:var(–text);width:100%;transition:.15s}
+.f-input{border:1.5px solid var(–border);border-radius:8px;padding:10px 12px;font-size:15px;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;background:var(–cream);color:var(–text);width:100%;transition:.15s}
 .f-input:focus{outline:none;border-color:var(–accent);background:#fff}
-.imp-btn{display:flex;align-items:center;gap:8px;padding:10px 13px;border:1.5px solid var(–border);border-radius:8px;background:var(–cream);color:var(–text);font-size:13px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;position:relative;overflow:hidden;width:100%;transition:.15s}
+.imp-btn{display:flex;align-items:center;gap:8px;padding:10px 13px;border:1.5px solid var(–border);border-radius:8px;background:var(–cream);color:var(–text);font-size:13px;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;position:relative;overflow:hidden;width:100%;transition:.15s}
 .imp-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:16px}
 .imp-btn.ok{border-color:var(–green);background:var(–green-l);color:var(–green);font-weight:500}
 .imp-st{font-size:12px;color:var(–muted);margin-top:6px;min-height:18px}
@@ -81,8 +78,8 @@ STEP 1：编辑卡片
 .crow{display:grid;grid-template-columns:26px 1fr 48px 48px 48px;gap:6px;align-items:center;padding:11px 12px;min-height:56px}
 .cidx{width:24px;height:24px;border-radius:50%;background:var(–warm);border:1px solid var(–border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(–muted);flex-shrink:0}
 .ci.editing .cidx{background:var(–accent);border-color:var(–accent);color:#fff}
-.cname{font-size:15px;font-weight:600;font-family:‘Noto Serif SC’,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cname.empty{color:var(–muted);font-style:italic;font-weight:400;font-family:‘Noto Sans SC’,sans-serif;font-size:13px}
+.cname{font-size:15px;font-weight:600;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cname.empty{color:var(–muted);font-style:italic;font-weight:400;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-size:13px}
 
 /* 缩略图：无图片时纯色方块，无图标 */
 .cthumb{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(–warm);border:1px solid var(–border)}
@@ -90,7 +87,7 @@ STEP 1：编辑卡片
 .cthumb.empty{background:var(–warm)}
 
 /* 文字操作按钮 */
-.ca{padding:5px 2px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:‘Noto Sans SC’,sans-serif;border-radius:6px;color:var(–blue);text-align:center}
+.ca{padding:5px 2px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;border-radius:6px;color:var(–blue);text-align:center}
 .ca.del{color:var(–red)}
 .ca:disabled{color:var(–muted);cursor:default}
 
@@ -100,7 +97,7 @@ STEP 1：编辑卡片
 
 .es{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
 .elabel{font-size:11px;font-weight:600;color:var(–muted);letter-spacing:.4px;text-transform:uppercase}
-.ename{border:1.5px solid var(–border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:‘Noto Serif SC’,serif;font-weight:600;background:#fff;color:var(–text);width:100%}
+.ename{border:1.5px solid var(–border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-weight:600;background:#fff;color:var(–text);width:100%}
 .ename:focus{outline:none;border-color:var(–accent)}
 
 /* 图片编辑 */
@@ -110,7 +107,7 @@ STEP 1：编辑卡片
 .img-big img{width:100%;height:100%;object-fit:cover;display:block}
 .img-big-hint{font-size:10px;color:var(–muted);text-align:center;padding:0 6px;line-height:1.4}
 .img-right{display:flex;flex-direction:column;gap:6px;flex:1}
-.img-pick{padding:10px 14px;border:1.5px dashed var(–border);border-radius:8px;background:#fff;color:var(–accent);font-size:13px;font-weight:500;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;position:relative;overflow:hidden;text-align:center;transition:.15s}
+.img-pick{padding:10px 14px;border:1.5px dashed var(–border);border-radius:8px;background:#fff;color:var(–accent);font-size:13px;font-weight:500;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;position:relative;overflow:hidden;text-align:center;transition:.15s}
 .img-pick input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:16px}
 .img-pick.ok{border-style:solid;border-color:var(–green);color:var(–green)}
 .img-sz{font-size:11px;color:var(–muted)}
@@ -118,7 +115,7 @@ STEP 1：编辑卡片
 /* 录音区 */
 .rec-box{background:#fff;border:1.5px solid var(–border);border-radius:10px;padding:12px}
 .rec-box.ok{border-color:var(–green);background:var(–green-l)}
-.rec-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:8px;background:var(–accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif}
+.rec-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:8px;background:var(–accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif}
 .rec-btn.go{background:var(–red);animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.55}}
 .rec-st{font-size:12px;color:var(–muted);margin-top:7px}
@@ -128,16 +125,16 @@ STEP 1：编辑卡片
 
 /* 编辑区底部按钮 */
 .edit-foot{display:flex;gap:10px;padding:12px 0 14px;border-top:1px solid var(–border);margin-top:4px}
-.ef-cancel{flex:1;padding:10px;border:1.5px solid var(–border);border-radius:9px;background:#fff;color:var(–muted);font-size:14px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;font-weight:500}
-.ef-save{flex:2;padding:10px;border:none;border-radius:9px;background:var(–accent);color:#fff;font-size:14px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;font-weight:500}
+.ef-cancel{flex:1;padding:10px;border:1.5px solid var(–border);border-radius:9px;background:#fff;color:var(–muted);font-size:14px;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-weight:500}
+.ef-save{flex:2;padding:10px;border:none;border-radius:9px;background:var(–accent);color:#fff;font-size:14px;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-weight:500}
 
-.add-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px;border:2px dashed var(–border);border-radius:12px;background:transparent;color:var(–muted);font-size:14px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;margin-top:4px}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px;border:2px dashed var(–border);border-radius:12px;background:transparent;color:var(–muted);font-size:14px;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;margin-top:4px}
 .add-btn:active{background:var(–warm)}
 
 /* ── 底部操作栏 ── */
 .bot{display:flex;align-items:center;gap:10px;margin-top:22px}
 .sp{flex:1}
-.btn{padding:11px 22px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:‘Noto Sans SC’,sans-serif;display:inline-flex;align-items:center;gap:6px}
+.btn{padding:11px 22px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;display:inline-flex;align-items:center;gap:6px}
 .btn-p{background:var(–accent);color:#fff}
 .btn-p:disabled{background:#C8C0B5;cursor:not-allowed}
 .btn-g{background:var(–green);color:#fff}
@@ -156,7 +153,7 @@ STEP 2：预览
 .pithumb{width:50px;height:50px;border-radius:8px;border:1px solid var(–border);flex-shrink:0;overflow:hidden;background:var(–warm);display:flex;align-items:center;justify-content:center}
 .pithumb img{width:100%;height:100%;object-fit:cover}
 .piinfo{flex:1;min-width:0}
-.piname{font-size:16px;font-weight:700;font-family:‘Noto Serif SC’,serif;margin-bottom:4px}
+.piname{font-size:16px;font-weight:700;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;margin-bottom:4px}
 .pitags{display:flex;gap:5px;flex-wrap:wrap}
 .ptag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(–warm);border:1px solid var(–border);color:var(–muted)}
 .ptag.ok{background:var(–green-l);border-color:#a8cdb5;color:var(–green)}
@@ -166,7 +163,7 @@ STEP 3：结果
 ════════════════════════════ */
 .rcard{background:#fff;border:1px solid var(–border);border-radius:14px;padding:30px 22px;text-align:center;box-shadow:var(–sh)}
 .rico{font-size:46px;margin-bottom:12px}
-.rtitle{font-family:‘Noto Serif SC’,serif;font-size:20px;font-weight:700;margin-bottom:8px}
+.rtitle{font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
 .rdetail{font-size:13px;color:var(–muted);line-height:2;margin-bottom:20px}
 .rbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
 .howto{background:var(–warm);border-radius:10px;padding:13px 15px;text-align:left;font-size:12px;color:var(–muted);line-height:2.2}
@@ -179,11 +176,11 @@ STEP 3：结果
 </head>
 <body>
 
-<div class="hd">
+<div class="app-header">
   <div style="font-size:22px">🃏</div>
   <div>
-    <div class="hd-title">认知训练卡片制作</div>
-    <div class="hd-sub">拍照 · 录音 · 生成 Anki 牌组</div>
+    <div class="app-header-title">认知训练卡片制作</div>
+    <div class="app-header-sub">拍照 · 录音 · 生成 Anki 牌组</div>
   </div>
 </div>
 
