@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>认知训练卡片制作 v10</title>
+<title>认知训练卡片制作 v11</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -418,11 +418,13 @@ function addCard(){
     audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'});
   openEdit(id);
   renderList();
+  // iOS Safari 要求 focus() 在用户手势的同步调用栈内，不能走 setTimeout
+  const inp=document.querySelector('#ci-'+id+' .ename');
+  if(inp) inp.focus();
+  // scroll 可以异步
   setTimeout(()=>{
-    const el=document.getElementById('ci-'+id);
-    el?.scrollIntoView({behavior:'smooth',block:'center'});
-    el?.querySelector('.ename')?.focus();
-  },100);
+    document.getElementById('ci-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});
+  },80);
 }
 
 function removeCard(id){
@@ -602,24 +604,24 @@ function compressImg(file,q){
 // ── 录音 ──────────────────────────────────
 async function toggleRec(cardId){
   const card=cards.find(c=>String(c.id)===String(cardId));
-  const btn=document.getElementById('recbtn-'+cardId);
-  const st=document.getElementById('recst-'+cardId);
-  const box=document.getElementById('rb-'+cardId);
 
-  // 停止当前录音
+  // ── 停止当前录音 ──
   if(activeRec&&activeRec.mr.state==='recording'){
     activeRec.mr.stop();
-    if(activeRec.cardId!==cardId) return;
     return;
   }
 
-  // 申请麦克风
+  // ── 申请麦克风 ──
   let stream;
   try{stream=await navigator.mediaDevices.getUserMedia({audio:true});}
-  catch{st.textContent='⚠ 请在设置中允许麦克风权限';return;}
+  catch{
+    // 直接更新 DOM，此时卡片编辑区仍在
+    const st=document.getElementById('recst-'+cardId);
+    if(st) st.textContent='⚠ 请在设置中允许麦克风权限';
+    return;
+  }
 
   const chunks=[];
-  // 修复：iOS Safari 支持 audio/mp4，优先使用
   let mimeType='audio/mp4',ext='m4a';
   if(!MediaRecorder.isTypeSupported('audio/mp4')){
     if(MediaRecorder.isTypeSupported('audio/aac')){mimeType='audio/aac';ext='aac';}
@@ -634,24 +636,30 @@ async function toggleRec(cardId){
   activeRec={mr,cardId};
 
   mr.ondataavailable=e=>{if(e.data&&e.data.size>0)chunks.push(e.data);};
+
   mr.onstop=()=>{
     stream.getTracks().forEach(t=>t.stop());
     activeRec=null;
     const blob=new Blob(chunks,{type:mr.mimeType||'audio/mp4'});
-    // 取实际 mimeType 判断扩展名
     const actualExt=mr.mimeType.includes('webm')?'webm':mr.mimeType.includes('ogg')?'ogg':'m4a';
     const url=URL.createObjectURL(blob);
-    card.audioBlob=blob;card.audioName=`录音.${actualExt}`;card.audioExt=actualExt;card.audioDataUrl=url;
-    btn.className='rec-btn';btn.textContent='🎙 重新录音';
-    box.className='rec-box ok';
-    st.textContent=`✓ 录音完成（${actualExt}）`;st.className='rec-st ok';
-    const pl=document.getElementById('recpl-'+cardId);
-    if(pl){pl.style.display='block';pl.innerHTML=`<audio controls src="${url}"></audio>`;}
+    // 更新数据
+    card.audioBlob=blob;
+    card.audioName=`录音.${actualExt}`;
+    card.audioExt=actualExt;
+    card.audioDataUrl=url;
+    // 数据驱动重渲染，彻底避免 DOM 引用失效
+    renderList();
+    // renderList 后 editingId 仍有效，卡片会保持展开状态
   };
 
   mr.start(100);
-  btn.className='rec-btn go';btn.textContent='⏹ 停止录音';
-  st.textContent='🔴 录音中… 说完点停止';st.className='rec-st';
+
+  // 立即更新录音中状态（此时 DOM 还在）
+  const btn=document.getElementById('recbtn-'+cardId);
+  const st=document.getElementById('recst-'+cardId);
+  if(btn){btn.className='rec-btn go';btn.textContent='⏹ 停止录音';}
+  if(st){st.textContent='🔴 录音中… 说完点停止';st.className='rec-st';}
 }
 
 // ═══════════════════════════════════════════
