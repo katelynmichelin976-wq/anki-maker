@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>认知训练卡片制作 v7</title>
+<title>认知训练卡片制作 v9</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -15,9 +15,13 @@
   --red:#9B3A2A;--red-l:#FAEAE7;
   --blue:#2D5F8A;--blue-l:#E8F1F8;
   --sh:0 1px 4px rgba(44,36,22,.07),0 4px 16px rgba(44,36,22,.06);
+  --sh-lg:0 12px 32px rgba(44,36,22,.12);
+  --radius:14px;
   --sh2:0 2px 8px rgba(44,36,22,.1),0 8px 24px rgba(44,36,22,.1);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+button:active:not(:disabled){transform:scale(0.96);opacity:.85;}
+.mode-card:active:not(.off){transform:scale(0.98);}
 body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
 
 /* ── 页头 ── */
@@ -26,17 +30,18 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .app-header-sub{font-size:11px;opacity:.6;margin-top:2px}
 
 /* ── 步骤条 ── */
-.steps{display:flex;background:#fff;border-bottom:1px solid var(--border)}
+.steps{display:flex;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
 .step{flex:1;padding:10px 4px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;position:relative}
 .step+.step{border-left:1px solid var(--border)}
 .step.active{color:var(--accent);font-weight:600}
 .step.active::after{content:'';position:absolute;bottom:0;left:15%;right:15%;height:2px;background:var(--accent);border-radius:2px}
 .step.done{color:var(--green)}
-.step .sn{display:block;font-size:15px;font-weight:700;margin-bottom:1px}
+.step .sn{display:block;font-size:16px;font-weight:800;margin-bottom:1px;line-height:1}
 
 /* ── 主容器 ── */
-.main{max-width:640px;margin:0 auto;padding:20px 16px 100px}
-.panel{display:none}.panel.active{display:block}
+.main{max-width:640px;margin:0 auto;padding:20px 16px 120px}
+.panel{display:none}.panel.active{display:block;animation:slideUp .35s cubic-bezier(.16,1,.3,1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
 /* ════════════════════════════
    STEP 0：选择模式
@@ -47,7 +52,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .mode-card.off{opacity:.45;pointer-events:none}
 .mc-hd{display:flex;align-items:center;gap:10px;margin-bottom:13px}
 .mc-ico{width:34px;height:34px;border-radius:9px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.mode-card.sel .mc-ico{background:var(--accent-l)}
+.mode-card.sel .mc-ico{background:var(--accent);color:#fff;}
 .mc-ttl{font-size:15px;font-weight:600;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
 .mc-sub{font-size:12px;color:var(--muted);margin-top:1px}
 .f-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:5px}
@@ -89,8 +94,8 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .cthumb.empty{background:var(--warm)}
 
 /* 文字操作按钮 */
-.ca{padding:5px 2px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;border-radius:6px;color:var(--blue);text-align:center}
-.ca.del{color:var(--red)}
+.ca{padding:5px 8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--blue-l);font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;border-radius:6px;color:var(--blue);text-align:center}
+.ca.del{background:var(--red-l);color:var(--red);}
 .ca:disabled{color:var(--muted);cursor:default}
 
 /* ── 展开编辑区 ── */
@@ -100,6 +105,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .es{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
 .elabel{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
 .ename{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-weight:600;background:#fff;color:var(--text);width:100%}
+.f-input::placeholder,.ename::placeholder{font-weight:400;color:var(--muted);}
 .ename:focus{outline:none;border-color:var(--accent)}
 
 /* 图片编辑 */
@@ -117,9 +123,9 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 /* 录音区 */
 .rec-box{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:12px}
 .rec-box.ok{border-color:var(--green);background:var(--green-l)}
-.rec-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
-.rec-btn.go{background:var(--red);animation:blink 1s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.55}}
+.rec-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:1.5px solid var(--accent);border-radius:8px;background:#fff;color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
+.rec-btn.go{background:var(--red);border-color:var(--red);color:#fff;animation:recpulse 1.5s infinite}
+@keyframes recpulse{0%{box-shadow:0 0 0 0 rgba(155,58,42,.45)}70%{box-shadow:0 0 0 12px rgba(155,58,42,0)}100%{box-shadow:0 0 0 0 rgba(155,58,42,0)}}
 .rec-st{font-size:12px;color:var(--muted);margin-top:7px}
 .rec-st.ok{color:var(--green);font-weight:500}
 .rec-play{margin-top:8px;display:none}
@@ -134,7 +140,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .add-btn:active{background:var(--warm)}
 
 /* ── 底部操作栏 ── */
-.bot{display:flex;align-items:center;gap:10px;margin-top:22px}
+.bot{display:flex;align-items:center;gap:10px;margin-top:22px;position:sticky;bottom:16px;z-index:90;}
 .sp{flex:1}
 .btn{padding:11px 22px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;display:inline-flex;align-items:center;gap:6px}
 .btn-p{background:var(--accent);color:#fff}
@@ -186,10 +192,10 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 </div>
 
 <div class="steps">
-  <div class="step active" id="st0"><span class="sn">①</span>选择模式</div>
-  <div class="step" id="st1"><span class="sn">②</span>编辑卡片</div>
-  <div class="step" id="st2"><span class="sn">③</span>检查预览</div>
-  <div class="step" id="st3"><span class="sn">④</span>下载文件</div>
+  <div class="step active" id="st0"><span class="sn">1</span>选择</div>
+  <div class="step" id="st1"><span class="sn">2</span>编辑</div>
+  <div class="step" id="st2"><span class="sn">3</span>预览</div>
+  <div class="step" id="st3"><span class="sn">4</span>完成</div>
 </div>
 
 <div class="main">
@@ -212,7 +218,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
     <div class="mode-card" id="mc-imp" onclick="selMode('import')">
       <div class="mc-hd">
         <div class="mc-ico">📂</div>
-        <div><div class="mc-ttl">导入已有牌组</div><div class="mc-sub">载入 .apkg 继续编辑</div></div>
+        <div><div class="mc-ttl">导入编辑</div><div class="mc-sub">从 .apkg 文件继续</div></div>
       </div>
       <div class="imp-btn" id="imp-filebtn" onclick="event.stopPropagation();selMode('import')">
         <input type="file" accept=".apkg" onchange="doImport(event)">
@@ -224,7 +230,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
   </div>
   <div class="bot">
     <div class="sp"></div>
-    <button class="btn btn-p" id="btn-p0" onclick="goStep(1)" disabled>下一步 →</button>
+    <button class="btn btn-p" id="btn-p0" onclick="goStep(1)" disabled>开始制作 →</button>
   </div>
 </div>
 
@@ -233,16 +239,16 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
   <div class="toolbar">
     <div class="deck-tag">🗂 <b id="dk-display"></b></div>
     <div class="q-ctl">
-      压缩质量：<input type="range" id="qslider" min="30" max="90" value="72" oninput="updQ(this.value)">
-      <b id="qlabel">72%</b>
+      压缩质量：<input type="range" id="qslider" min="50" max="95" value="85" oninput="updQ(this.value)">
+      <b id="qlabel">85%</b>
     </div>
   </div>
   <div id="card-list"></div>
-  <button class="add-btn" onclick="addCard()">＋ 添加一张卡片</button>
+  <button class="add-btn" onclick="addCard()">＋ 添加卡片</button>
   <div class="bot">
-    <button class="btn btn-s" onclick="goStep(0)">← 返回</button>
+    <button class="btn btn-s" onclick="goStep(0)">返回</button>
     <div class="sp"></div>
-    <button class="btn btn-p" id="btn-p1" onclick="goStep(2)" disabled>下一步 →</button>
+    <button class="btn btn-p" id="btn-p1" onclick="goStep(2)" disabled>检查预览 →</button>
   </div>
 </div>
 
@@ -252,7 +258,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
   <div class="plist" id="plist"></div>
   <div class="err" id="p2err"></div>
   <div class="bot">
-    <button class="btn btn-s" onclick="goStep(1)">← 返回</button>
+    <button class="btn btn-s" onclick="goStep(1)">返回修改</button>
     <div class="sp"></div>
     <button class="btn btn-g" id="btn-gen" onclick="doBuild()">✦ 生成 .apkg</button>
   </div>
@@ -411,8 +417,10 @@ function addCard(){
   openEdit(id);
   renderList();
   setTimeout(()=>{
-    document.getElementById('ci-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});
-  },60);
+    const el=document.getElementById('ci-'+id);
+    el?.scrollIntoView({behavior:'smooth',block:'center'});
+    el?.querySelector('.ename')?.focus();
+  },100);
 }
 
 function removeCard(id){
@@ -468,7 +476,7 @@ function renderList(){
     div.innerHTML=`
       <div class="crow">
         <div class="cidx">${idx+1}</div>
-        <div class="${card.name?'cname':'cname empty'}">${esc(card.name)||'未填名称'}</div>
+        <div class="${card.name?'cname':'cname empty'}">${esc(card.name)||'未命名卡片...'}</div>
         ${thumbHtml}
         <button class="ca" onclick="toggleEdit('${card.id}')" ${isEd?'disabled':''}>编辑</button>
         <button class="ca del" onclick="removeCard('${card.id}')">删除</button>
@@ -494,18 +502,19 @@ function toggleEdit(id){
 function buildEdit(card){
   const hasImg=!!card.imageDataUrl;
   const hasAud=!!card.audioBlob;
+  const camSvg=`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`;
   return `
     <div class="es">
-      <div class="elabel">名称</div>
-      <input class="ename" type="text" placeholder="物品名称"
+      <div class="elabel">卡片名称</div>
+      <input class="ename" type="text" placeholder="例：苹果、我的水杯"
         value="${esc(card.name)}"
         oninput="updField('${card.id}','name',this.value)">
     </div>
     <div class="es">
-      <div class="elabel">图片</div>
+      <div class="elabel">图片展示</div>
       <div class="img-row">
         <div class="img-big" id="ib-${card.id}">
-          ${hasImg?`<img src="${card.imageDataUrl}">`:'<div class="img-big-hint">点右侧按钮上传图片</div>'}
+          ${hasImg?`<img src="${card.imageDataUrl}">`:camSvg}
         </div>
         <div class="img-right">
           <div class="img-pick ${hasImg?'ok':''}" id="ip-${card.id}">
@@ -517,13 +526,13 @@ function buildEdit(card){
       </div>
     </div>
     <div class="es">
-      <div class="elabel">录音</div>
-      <div class="rec-box ${hasAud?'ok':''}" id="rb-${card.id}">
+      <div class="elabel">语音提示</div>
+      <div class="rec-box ${hasAud?'ok':''}" id="ra-${card.id}">
         <button class="rec-btn" id="recbtn-${card.id}" onclick="toggleRec('${card.id}')">
           ${hasAud?'🎙 重新录音':'🎙 开始录音'}
         </button>
         <div class="rec-st ${hasAud?'ok':''}" id="recst-${card.id}">
-          ${hasAud?`✓ 录音完成（${card.audioExt}）`:'点按钮开始录音'}
+          ${hasAud?`✓ 录音完成（${card.audioExt}）`:'点击录制真人发音'}
         </div>
         <div class="rec-play" id="recpl-${card.id}" style="${hasAud?'display:block':''}">
           ${hasAud?`<audio controls src="${card.audioDataUrl}"></audio>`:''}
@@ -531,11 +540,9 @@ function buildEdit(card){
       </div>
     </div>
     <div class="edit-foot">
-      <button class="ef-cancel" onclick="cancelEdit()">取消</button>
-      <button class="ef-save" onclick="saveEdit()">保存</button>
+      <button class="ef-save" onclick="saveEdit()">确定并保存</button>
     </div>`;
 }
-
 function updField(id,field,val){
   const c=cards.find(c=>String(c.id)===String(id));
   if(c){
@@ -572,7 +579,7 @@ function compressImg(file,q){
     fr.onload=e=>{
       const img=new Image();
       img.onload=()=>{
-        const sc=Math.min(1,600/Math.max(img.width,img.height));
+        const sc=Math.min(1,1200/Math.max(img.width,img.height));
         const w=Math.round(img.width*sc),h=Math.round(img.height*sc);
         const cv=document.createElement('canvas');cv.width=w;cv.height=h;
         const ctx=cv.getContext('2d');
