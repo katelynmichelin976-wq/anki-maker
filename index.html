@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>认知训练卡片制作</title>
+<title>认知训练卡片制作 v7</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <style>
 :root{
   --cream:#FAF7F2;--warm:#F0EBE1;--border:#DDD5C8;--text:#2C2416;--muted:#8A7F72;
@@ -19,17 +21,17 @@
 body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
 
 /* ── 页头 ── */
-.app-header{background:var(–accent);color:#FAF7F2;padding:15px 20px;display:flex;align-items:center;gap:12px}
-.app-header-title{font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px}
+.app-header{background:var(--accent);color:#FAF7F2;padding:15px 20px;display:flex;align-items:center;gap:12px}
+.app-header-title{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px}
 .app-header-sub{font-size:11px;opacity:.6;margin-top:2px}
 
 /* ── 步骤条 ── */
-.steps{display:flex;background:#fff;border-bottom:1px solid var(–border)}
-.step{flex:1;padding:10px 4px;text-align:center;font-size:11px;color:var(–muted);cursor:pointer;position:relative}
-.step+.step{border-left:1px solid var(–border)}
-.step.active{color:var(–accent);font-weight:600}
-.step.active::after{content:’’;position:absolute;bottom:0;left:15%;right:15%;height:2px;background:var(–accent);border-radius:2px}
-.step.done{color:var(–green)}
+.steps{display:flex;background:#fff;border-bottom:1px solid var(--border)}
+.step{flex:1;padding:10px 4px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;position:relative}
+.step+.step{border-left:1px solid var(--border)}
+.step.active{color:var(--accent);font-weight:600}
+.step.active::after{content:'';position:absolute;bottom:0;left:15%;right:15%;height:2px;background:var(--accent);border-radius:2px}
+.step.done{color:var(--green)}
 .step .sn{display:block;font-size:15px;font-weight:700;margin-bottom:1px}
 
 /* ── 主容器 ── */
@@ -40,749 +42,61 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 STEP 0：选择模式
 ════════════════════════════ */
 .mode-wrap{display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
-.mode-card{background:#fff;border:2px solid var(–border);border-radius:14px;padding:18px;cursor:pointer;transition:border-color .15s,background .15s}
-.mode-card.sel{border-color:var(–accent);background:var(–accent-bg)}
+.mode-card{background:#fff;border:2px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;transition:border-color .15s,background .15s}
+.mode-card.sel{border-color:var(--accent);background:var(--accent-bg)}
 .mode-card.off{opacity:.45;pointer-events:none}
 .mc-hd{display:flex;align-items:center;gap:10px;margin-bottom:13px}
-.mc-ico{width:34px;height:34px;border-radius:9px;background:var(–warm);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.mode-card.sel .mc-ico{background:var(–accent-l)}
-.mc-ttl{font-size:15px;font-weight:600;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif}
-.mc-sub{font-size:12px;color:var(–muted);margin-top:1px}
-.f-label{font-size:12px;color:var(–muted);font-weight:500;margin-bottom:5px}
-.f-input{border:1.5px solid var(–border);border-radius:8px;padding:10px 12px;font-size:15px;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;background:var(–cream);color:var(–text);width:100%;transition:.15s}
-.f-input:focus{outline:none;border-color:var(–accent);background:#fff}
-.imp-btn{display:flex;align-items:center;gap:8px;padding:10px 13px;border:1.5px solid var(–border);border-radius:8px;background:var(–cream);color:var(–text);font-size:13px;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;position:relative;overflow:hidden;width:100%;transition:.15s}
+.mc-ico{width:34px;height:34px;border-radius:9px;background:var(--warm);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.mode-card.sel .mc-ico{background:var(--accent-l)}
+.mc-ttl{font-size:15px;font-weight:600;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
+.mc-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.f-label{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:5px}
+.f-input{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:15px;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--cream);color:var(--text);width:100%;transition:.15s}
+.f-input:focus{outline:none;border-color:var(--accent);background:#fff}
+.imp-btn{display:flex;align-items:center;gap:8px;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;background:var(--cream);color:var(--text);font-size:13px;cursor:pointer;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;position:relative;overflow:hidden;width:100%;transition:.15s}
 .imp-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:16px}
-.imp-btn.ok{border-color:var(–green);background:var(–green-l);color:var(–green);font-weight:500}
-.imp-st{font-size:12px;color:var(–muted);margin-top:6px;min-height:18px}
-.imp-st.ok{color:var(–green)}
-.imp-st.err{color:var(–red)}
+.imp-btn.ok{border-color:var(--green);background:var(--green-l);color:var(--green);font-weight:500}
+.imp-st{font-size:12px;color:var(--muted);margin-top:6px;min-height:18px}
+.imp-st.ok{color:var(--green)}
+.imp-st.err{color:var(--red)}
 
 /* ════════════════════════════
 STEP 1：编辑卡片
 ════════════════════════════ */
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.deck-tag{background:#fff;border:1px solid var(–border);border-radius:20px;padding:5px 13px;font-size:12px;color:var(–muted);display:flex;align-items:center;gap:5px}
-.deck-tag b{color:var(–text);font-weight:600}
-.q-ctl{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(–muted)}
-.q-ctl input[type=range]{width:64px;accent-color:var(–accent)}
-.q-ctl b{min-width:34px;color:var(–accent);font-weight:600}
+.deck-tag{background:#fff;border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.deck-tag b{color:var(--text);font-weight:600}
+.q-ctl{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.q-ctl input[type=range]{width:64px;accent-color:var(--accent)}
+.q-ctl b{min-width:34px;color:var(--accent);font-weight:600}
 
 #card-list{display:flex;flex-direction:column;gap:8px}
 
 /* ── 卡片容器 ── */
-.ci{background:#fff;border:1.5px solid var(–border);border-radius:12px;overflow:hidden;box-shadow:var(–sh);transition:border-color .2s,box-shadow .2s}
-.ci.editing{border-color:var(–accent);box-shadow:var(–sh2)}
+.ci{background:#fff;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--sh);transition:border-color .2s,box-shadow .2s}
+.ci.editing{border-color:var(--accent);box-shadow:var(--sh2)}
 
 /* ── 折叠行 ── */
 .crow{display:grid;grid-template-columns:26px 1fr 48px 48px 48px;gap:6px;align-items:center;padding:11px 12px;min-height:56px}
-.cidx{width:24px;height:24px;border-radius:50%;background:var(–warm);border:1px solid var(–border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(–muted);flex-shrink:0}
-.ci.editing .cidx{background:var(–accent);border-color:var(–accent);color:#fff}
-.cname{font-size:15px;font-weight:600;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cname.empty{color:var(–muted);font-style:italic;font-weight:400;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-size:13px}
+.cidx{width:24px;height:24px;border-radius:50%;background:var(--warm);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}
+.ci.editing .cidx{background:var(--accent);border-color:var(--accent);color:#fff}
+.cname{font-size:15px;font-weight:600;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cname.empty{color:var(--muted);font-style:italic;font-weight:400;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-size:13px}
 
 /* 缩略图：无图片时纯色方块，无图标 */
-.cthumb{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(–warm);border:1px solid var(–border)}
+.cthumb{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;background:var(--warm);border:1px solid var(--border)}
 .cthumb img{width:100%;height:100%;object-fit:cover;display:block}
-.cthumb.empty{background:var(–warm)}
+.cthumb.empty{background:var(--warm)}
 
 /* 文字操作按钮 */
-.ca{padding:5px 2px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;border-radius:6px;color:var(–blue);text-align:center}
-.ca.del{color:var(–red)}
-.ca:disabled{color:var(–muted);cursor:default}
+.ca{padding:5px 2px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;border-radius:6px;color:var(--blue);text-align:center}
+.ca.del{color:var(--red)}
+.ca:disabled{color:var(--muted);cursor:default}
 
 /* ── 展开编辑区 ── */
-.cedit{display:none;border-top:1px solid var(–border);background:var(–accent-bg);padding:14px 12px 0}
+.cedit{display:none;border-top:1px solid var(--border);background:var(--accent-bg);padding:14px 12px 0}
 .ci.editing .cedit{display:block}
 
 .es{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.elabel{font-size:11px;font-weight:600;color:var(–muted);letter-spacing:.4px;text-transform:uppercase}
-.ename{border:1.5px solid var(–border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-weight:600;background:#fff;color:var(–text);width:100%}
-.ename:focus{outline:none;border-color:var(–accent)}
-
-/* 图片编辑 */
-.img-row{display:flex;align-items:flex-start;gap:12px}
-/* 大预览：无图片时纯灰色方块+提示文字，无emoji */
-.img-big{width:84px;height:84px;border-radius:10px;border:1.5px solid var(–border);flex-shrink:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(–warm)}
-.img-big img{width:100%;height:100%;object-fit:cover;display:block}
-.img-big-hint{font-size:10px;color:var(–muted);text-align:center;padding:0 6px;line-height:1.4}
-.img-right{display:flex;flex-direction:column;gap:6px;flex:1}
-.img-pick{padding:10px 14px;border:1.5px dashed var(–border);border-radius:8px;background:#fff;color:var(–accent);font-size:13px;font-weight:500;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;position:relative;overflow:hidden;text-align:center;transition:.15s}
-.img-pick input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:16px}
-.img-pick.ok{border-style:solid;border-color:var(–green);color:var(–green)}
-.img-sz{font-size:11px;color:var(–muted)}
-
-/* 录音区 */
-.rec-box{background:#fff;border:1.5px solid var(–border);border-radius:10px;padding:12px}
-.rec-box.ok{border-color:var(–green);background:var(–green-l)}
-.rec-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:none;border-radius:8px;background:var(–accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif}
-.rec-btn.go{background:var(–red);animation:blink 1s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.55}}
-.rec-st{font-size:12px;color:var(–muted);margin-top:7px}
-.rec-st.ok{color:var(–green);font-weight:500}
-.rec-play{margin-top:8px;display:none}
-.rec-play audio{width:100%;height:36px}
-
-/* 编辑区底部按钮 */
-.edit-foot{display:flex;gap:10px;padding:12px 0 14px;border-top:1px solid var(–border);margin-top:4px}
-.ef-cancel{flex:1;padding:10px;border:1.5px solid var(–border);border-radius:9px;background:#fff;color:var(–muted);font-size:14px;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-weight:500}
-.ef-save{flex:2;padding:10px;border:none;border-radius:9px;background:var(–accent);color:#fff;font-size:14px;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-weight:500}
-
-.add-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px;border:2px dashed var(–border);border-radius:12px;background:transparent;color:var(–muted);font-size:14px;cursor:pointer;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;margin-top:4px}
-.add-btn:active{background:var(–warm)}
-
-/* ── 底部操作栏 ── */
-.bot{display:flex;align-items:center;gap:10px;margin-top:22px}
-.sp{flex:1}
-.btn{padding:11px 22px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;display:inline-flex;align-items:center;gap:6px}
-.btn-p{background:var(–accent);color:#fff}
-.btn-p:disabled{background:#C8C0B5;cursor:not-allowed}
-.btn-g{background:var(–green);color:#fff}
-.btn-g:disabled{background:#C8C0B5;cursor:not-allowed}
-.btn-s{background:#fff;color:var(–text);border:1.5px solid var(–border)}
-
-/* ════════════════════════════
-STEP 2：预览
-════════════════════════════ */
-.pmeta{background:#fff;border:1px solid var(–border);border-radius:10px;padding:12px 15px;margin-bottom:14px;display:flex;gap:18px;flex-wrap:wrap}
-.pm{display:flex;flex-direction:column;gap:2px}
-.pml{font-size:10px;color:var(–muted);font-weight:500}
-.pmv{font-size:14px;font-weight:600}
-.plist{display:flex;flex-direction:column;gap:8px}
-.pi{background:#fff;border:1px solid var(–border);border-radius:10px;padding:11px 13px;display:flex;gap:10px;align-items:center;box-shadow:var(–sh)}
-.pithumb{width:50px;height:50px;border-radius:8px;border:1px solid var(–border);flex-shrink:0;overflow:hidden;background:var(–warm);display:flex;align-items:center;justify-content:center}
-.pithumb img{width:100%;height:100%;object-fit:cover}
-.piinfo{flex:1;min-width:0}
-.piname{font-size:16px;font-weight:700;font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;margin-bottom:4px}
-.pitags{display:flex;gap:5px;flex-wrap:wrap}
-.ptag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(–warm);border:1px solid var(–border);color:var(–muted)}
-.ptag.ok{background:var(–green-l);border-color:#a8cdb5;color:var(–green)}
-
-/* ════════════════════════════
-STEP 3：结果
-════════════════════════════ */
-.rcard{background:#fff;border:1px solid var(–border);border-radius:14px;padding:30px 22px;text-align:center;box-shadow:var(–sh)}
-.rico{font-size:46px;margin-bottom:12px}
-.rtitle{font-family:‘PingFang SC’,‘Hiragino Sans GB’,‘Microsoft YaHei’,sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
-.rdetail{font-size:13px;color:var(–muted);line-height:2;margin-bottom:20px}
-.rbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
-.howto{background:var(–warm);border-radius:10px;padding:13px 15px;text-align:left;font-size:12px;color:var(–muted);line-height:2.2}
-.howto b{color:var(–text)}
-
-.err{background:var(–red-l);border:1px solid #e0a090;border-radius:8px;padding:10px 13px;font-size:13px;color:var(–red);display:none;margin-top:10px}
-.err.show{display:block}
-</style>
-
-</head>
-<body>
-
-<div class="app-header">
-  <div style="font-size:22px">🃏</div>
-  <div>
-    <div class="app-header-title">认知训练卡片制作</div>
-    <div class="app-header-sub">拍照 · 录音 · 生成 Anki 牌组</div>
-  </div>
-</div>
-
-<div class="steps">
-  <div class="step active" id="st0"><span class="sn">①</span>选择模式</div>
-  <div class="step" id="st1"><span class="sn">②</span>编辑卡片</div>
-  <div class="step" id="st2"><span class="sn">③</span>检查预览</div>
-  <div class="step" id="st3"><span class="sn">④</span>下载文件</div>
-</div>
-
-<div class="main">
-
-<!-- ── P0 选择模式 ── -->
-
-<div class="panel active" id="p0">
-  <div class="mode-wrap">
-
-```
-<div class="mode-card" id="mc-new" onclick="selMode('new')">
-  <div class="mc-hd">
-    <div class="mc-ico">📝</div>
-    <div><div class="mc-ttl">新建牌组</div><div class="mc-sub">从头开始制作新卡片</div></div>
-  </div>
-  <div class="f-label">牌组名称</div>
-  <input class="f-input" id="dk-name" type="text" placeholder="例：妈妈的日常物品"
-    onclick="event.stopPropagation();selMode('new')"
-    oninput="chkP0()">
-</div>
-
-<div class="mode-card" id="mc-imp" onclick="selMode('import')">
-  <div class="mc-hd">
-    <div class="mc-ico">📂</div>
-    <div><div class="mc-ttl">导入已有牌组</div><div class="mc-sub">载入 .apkg 继续编辑</div></div>
-  </div>
-  <div class="imp-btn" id="imp-filebtn" onclick="event.stopPropagation();selMode('import')">
-    <input type="file" accept=".apkg" onchange="doImport(event)">
-    <span>选择 .apkg 文件</span>
-  </div>
-  <div class="imp-st" id="imp-st">尚未选择文件</div>
-</div>
-```
-
-  </div>
-  <div class="bot">
-    <div class="sp"></div>
-    <button class="btn btn-p" id="btn-p0" onclick="goStep(1)" disabled>下一步 →</button>
-  </div>
-</div>
-
-<!-- ── P1 编辑卡片 ── -->
-
-<div class="panel" id="p1">
-  <div class="toolbar">
-    <div class="deck-tag">🗂 <b id="dk-display"></b></div>
-    <div class="q-ctl">
-      压缩质量：<input type="range" id="qslider" min="30" max="90" value="72" oninput="updQ(this.value)">
-      <b id="qlabel">72%</b>
-    </div>
-  </div>
-  <div id="card-list"></div>
-  <button class="add-btn" onclick="addCard()">＋ 添加一张卡片</button>
-  <div class="bot">
-    <button class="btn btn-s" onclick="goStep(0)">← 返回</button>
-    <div class="sp"></div>
-    <button class="btn btn-p" id="btn-p1" onclick="goStep(2)" disabled>下一步 →</button>
-  </div>
-</div>
-
-<!-- ── P2 预览 ── -->
-
-<div class="panel" id="p2">
-  <div class="pmeta" id="pmeta"></div>
-  <div class="plist" id="plist"></div>
-  <div class="err" id="p2err"></div>
-  <div class="bot">
-    <button class="btn btn-s" onclick="goStep(1)">← 返回</button>
-    <div class="sp"></div>
-    <button class="btn btn-g" id="btn-gen" onclick="doBuild()">✦ 生成 .apkg</button>
-  </div>
-</div>
-
-<!-- ── P3 结果 ── -->
-
-<div class="panel" id="p3">
-  <div class="rcard">
-    <div class="rico">✅</div>
-    <div class="rtitle">牌组生成成功！</div>
-    <div class="rdetail" id="rdetail"></div>
-    <div class="rbtns">
-      <button class="btn btn-g" onclick="dlApkg()">⬇ 下载 .apkg</button>
-      <button class="btn btn-s" onclick="goStep(0)">重新制作</button>
-    </div>
-    <div class="howto">
-      <b>iPhone 导入：</b>点下载 → 弹出菜单选"在 Anki 中打开"<br>
-      <b>电脑导入：</b>Anki → 文件 → 导入
-    </div>
-  </div>
-</div>
-
-</div><!-- /main -->
-
-<script>
-// ═══════════════════════════════════════════
-// 全局状态
-// ═══════════════════════════════════════════
-let mode=null, deckName='', cards=[], apkgBlob=null;
-let activeRec=null;   // {mediaRecorder, cardId}
-let editingId=null;   // 当前展开编辑的卡片id
-let editSnap=null;    // 编辑前的快照，用于取消
-
-// ═══════════════════════════════════════════
-// 工具
-// ═══════════════════════════════════════════
-const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const fmtKB=kb=>kb>=1024?(kb/1024).toFixed(1)+'MB':kb+'KB';
-const getQ=()=>parseInt(document.getElementById('qslider').value)/100;
-function updQ(v){document.getElementById('qlabel').textContent=v+'%';}
-function ldScript(src){
-  return new Promise((res,rej)=>{
-    if(document.querySelector(`script[src="${src}"]`)){res();return;}
-    const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);
-  });
-}
-function snapCard(c){return JSON.parse(JSON.stringify({...c,imageBlob:null,audioBlob:null,_imgBlob:c.imageBlob,_audBlob:c.audioBlob}));}
-
-// ═══════════════════════════════════════════
-// 步骤导航
-// ═══════════════════════════════════════════
-function goStep(n){
-  if(n===1) renderList();
-  if(n===2) renderPreview();
-  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
-  ['st0','st1','st2','st3'].forEach((id,i)=>{
-    const el=document.getElementById(id);
-    el.classList.toggle('active',i===n);
-    el.classList.toggle('done',i<n);
-  });
-  window.scrollTo(0,0);
-}
-
-// ═══════════════════════════════════════════
-// P0：模式选择
-// ═══════════════════════════════════════════
-function selMode(m){
-  mode=m;
-  document.getElementById('mc-new').classList.toggle('sel',m==='new');
-  document.getElementById('mc-imp').classList.toggle('sel',m==='import');
-  chkP0();
-}
-function chkP0(){
-  const nameOk=mode==='new'&&document.getElementById('dk-name').value.trim().length>0;
-  const impOk=mode==='import'&&cards.length>0;
-  document.getElementById('btn-p0').disabled=!(nameOk||impOk);
-  if(mode==='new') deckName=document.getElementById('dk-name').value.trim();
-}
-
-// ── 导入 .apkg ──────────────────────────────
-async function doImport(e){
-  const file=e.target.files[0];if(!file)return;
-  const st=document.getElementById('imp-st');
-  const fb=document.getElementById('imp-filebtn');
-  st.textContent='解析中…';st.className='imp-st';
-  try{
-    await ldScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
-    if(!window.SQL){
-      await ldScript('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js');
-      window.SQL=await initSqlJs({locateFile:f=>'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'+f});
-    }
-    const zip=await JSZip.loadAsync(await file.arrayBuffer());
-    const mediaIdx=JSON.parse(await zip.file('media').async('string'));
-    const nameToIdx={};
-    Object.entries(mediaIdx).forEach(([i,n])=>nameToIdx[n]=i);
-    const db=new SQL.Database(new Uint8Array(await zip.file('collection.anki2').async('arraybuffer')));
-    // 读牌组名
-    const cr=db.exec('SELECT decks FROM col LIMIT 1');
-    if(cr.length){
-      const dks=Object.values(JSON.parse(cr[0].values[0][0])).filter(d=>d.id!==1&&d.name!=='Default');
-      deckName=dks.length?dks[0].name:file.name.replace('.apkg','');
-    }
-    const nr=db.exec('SELECT flds FROM notes');
-    const SEP='\x1f';
-    const imported=[];
-    for(const row of nr[0]?.values||[]){
-      const flds=row[0].split(SEP);
-      const name=(flds[1]||'').trim();
-      if(!name)continue;
-      const card={id:Date.now()+Math.random(),name,
-        imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
-        audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'};
-      // 图片
-      const im=flds[0].match(/src="([^"]+\.(jpg|jpeg|png|gif|webp))"/i);
-      if(im){const zi=nameToIdx[im[1]];if(zi!=null){
-        const buf=await zip.file(zi).async('arraybuffer');
-        const blob=new Blob([buf],{type:'image/jpeg'});
-        card.imageBlob=blob;card.imageDataUrl=await blobToUrl(blob);
-        card.imageSizeKB=Math.round(blob.size/1024);card.origKB=card.imageSizeKB;
-      }}
-      // 录音
-      const sm=(flds[2]||'').match(/\[sound:([^\]]+)\]/);
-      if(sm){const zi=nameToIdx[sm[1]];if(zi!=null){
-        const buf=await zip.file(zi).async('arraybuffer');
-        const ext=sm[1].split('.').pop().toLowerCase();
-        const mime={'m4a':'audio/mp4','mp4':'audio/mp4','mp3':'audio/mpeg',
-                    'ogg':'audio/ogg','webm':'audio/webm','aac':'audio/aac'}[ext]||'audio/mp4';
-        const blob=new Blob([buf],{type:mime});
-        card.audioBlob=blob;card.audioName=sm[1];card.audioExt=ext;
-        card.audioDataUrl=URL.createObjectURL(blob);
-      }}
-      imported.push(card);
-    }
-    db.close();
-    if(!imported.length){st.textContent='未找到有效卡片';st.className='imp-st err';return;}
-    cards=imported;
-    selMode('import');
-    fb.className='imp-btn ok';
-    st.textContent=`✓ 解析完成：${imported.length} 张，牌组「${deckName}」`;
-    st.className='imp-st ok';
-    chkP0();
-  }catch(err){
-    st.textContent='解析失败：'+err.message;st.className='imp-st err';
-    console.error(err);
-  }
-}
-function blobToUrl(b){return new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.readAsDataURL(b);});}
-
-// ═══════════════════════════════════════════
-// P1：编辑卡片
-// ═══════════════════════════════════════════
-function addCard(){
-  const id=Date.now()+Math.random();
-  cards.push({id,name:'',imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
-    audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'});
-  openEdit(id);
-  renderList();
-  setTimeout(()=>{
-    document.getElementById('ci-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});
-  },60);
-}
-
-function removeCard(id){
-  if(!confirm('删除这张卡片？'))return;
-  if(editingId===id){editingId=null;editSnap=null;}
-  cards=cards.filter(c=>String(c.id)!==String(id));
-  renderList();
-}
-
-function openEdit(id){
-  editingId=id;
-  // 保存快照
-  const c=cards.find(c=>String(c.id)===String(id));
-  if(c) editSnap={...c};
-}
-
-function cancelEdit(){
-  // 恢复快照
-  if(editSnap){
-    const idx=cards.findIndex(c=>String(c.id)===String(editingId));
-    if(idx>=0) cards[idx]={...editSnap};
-  }
-  editingId=null;editSnap=null;
-  renderList();
-}
-
-function saveEdit(){
-  editingId=null;editSnap=null;
-  renderList();
-}
-
-function chkP1(){
-  const ok=cards.length>0&&cards.every(c=>c.name.trim()&&c.imageBlob);
-  document.getElementById('btn-p1').disabled=!ok;
-}
-
-// ── 渲染列表 ──────────────────────────────
-function renderList(){
-  document.getElementById('dk-display').textContent=deckName;
-  const list=document.getElementById('card-list');
-  list.innerHTML='';
-  cards.forEach((card,idx)=>{
-    const isEd=String(editingId)===String(card.id);
-    const div=document.createElement('div');
-    div.className='ci'+(isEd?' editing':'');
-    div.id='ci-'+card.id;
-
-    // 缩略图
-    const thumbHtml=card.imageDataUrl
-      ?`<div class="cthumb"><img src="${card.imageDataUrl}"></div>`
-      :`<div class="cthumb empty"></div>`;
-
-    div.innerHTML=`
-      <div class="crow">
-        <div class="cidx">${idx+1}</div>
-        <div class="${card.name?'cname':'cname empty'}">${esc(card.name)||'未填名称'}</div>
-        ${thumbHtml}
-        <button class="ca" onclick="toggleEdit('${card.id}')" ${isEd?'disabled':''}>编辑</button>
-        <button class="ca del" onclick="removeCard('${card.id}')">删除</button>
-      </div>
-      <div class="cedit" id="ed-${card.id}">${isEd?buildEdit(card):''}</div>`;
-
-    list.appendChild(div);
-  });
-  chkP1();
-}
-
-function toggleEdit(id){
-  if(String(editingId)===String(id)){cancelEdit();return;}
-  // 若有正在录音，先停
-  if(activeRec&&activeRec.mr.state==='recording') activeRec.mr.stop();
-  openEdit(id);
-  renderList();
-  setTimeout(()=>{
-    document.getElementById('ci-'+id)?.scrollIntoView({behavior:'smooth',block:'nearest'});
-  },60);
-}
-
-function buildEdit(card){
-  const hasImg=!!card.imageDataUrl;
-  const hasAud=!!card.audioBlob;
-  return `
-    <div class="es">
-      <div class="elabel">名称</div>
-      <input class="ename" type="text" placeholder="物品名称"
-        value="${esc(card.name)}"
-        oninput="updField('${card.id}','name',this.value)">
-    </div>
-    <div class="es">
-      <div class="elabel">图片</div>
-      <div class="img-row">
-        <div class="img-big" id="ib-${card.id}">
-          ${hasImg?`<img src="${card.imageDataUrl}">`:'<div class="img-big-hint">点右侧按钮上传图片</div>'}
-        </div>
-        <div class="img-right">
-          <div class="img-pick ${hasImg?'ok':''}" id="ip-${card.id}">
-            ${hasImg?'重新拍照 / 选图':'拍照 / 选图'}
-            <input type="file" accept="image/*" onchange="handleImg(event,'${card.id}')">
-          </div>
-          <div class="img-sz" id="isz-${card.id}">${hasImg?`已压缩 ${card.imageSizeKB}KB（原 ${card.origKB}KB）`:''}</div>
-        </div>
-      </div>
-    </div>
-    <div class="es">
-      <div class="elabel">录音</div>
-      <div class="rec-box ${hasAud?'ok':''}" id="rb-${card.id}">
-        <button class="rec-btn" id="recbtn-${card.id}" onclick="toggleRec('${card.id}')">
-          ${hasAud?'🎙 重新录音':'🎙 开始录音'}
-        </button>
-        <div class="rec-st ${hasAud?'ok':''}" id="recst-${card.id}">
-          ${hasAud?`✓ 录音完成（${card.audioExt}）`:'点按钮开始录音'}
-        </div>
-        <div class="rec-play" id="recpl-${card.id}" style="${hasAud?'display:block':''}">
-          ${hasAud?`<audio controls src="${card.audioDataUrl}"></audio>`:''}
-        </div>
-      </div>
-    </div>
-    <div class="edit-foot">
-      <button class="ef-cancel" onclick="cancelEdit()">取消</button>
-      <button class="ef-save" onclick="saveEdit()">保存</button>
-    </div>`;
-}
-
-function updField(id,field,val){
-  const c=cards.find(c=>String(c.id)===String(id));
-  if(c){
-    c[field]=val;
-    // 同步折叠行名称，不重渲染
-    const nm=document.querySelector(`#ci-${id} .cname`);
-    if(nm){nm.textContent=val||'未填名称';nm.className=val?'cname':'cname empty';}
-    chkP1();
-  }
-}
-
-// ── 图片处理 ──────────────────────────────
-async function handleImg(e,cardId){
-  const file=e.target.files[0];if(!file)return;
-  const card=cards.find(c=>String(c.id)===String(cardId));
-  const r=await compressImg(file,getQ());
-  card.imageDataUrl=r.dataUrl;card.imageBlob=r.blob;card.imageSizeKB=r.sizeKB;card.origKB=r.origKB;
-  // 更新编辑区局部UI
-  const ib=document.getElementById('ib-'+cardId);
-  if(ib) ib.innerHTML=`<img src="${r.dataUrl}">`;
-  const ip=document.getElementById('ip-'+cardId);
-  if(ip){ip.className='img-pick ok';ip.childNodes[0].textContent='重新拍照 / 选图';}
-  const isz=document.getElementById('isz-'+cardId);
-  if(isz) isz.textContent=`已压缩 ${r.sizeKB}KB（原 ${r.origKB}KB）`;
-  // 更新折叠行缩略图
-  const ct=document.querySelector(`#ci-${cardId} .cthumb`);
-  if(ct){ct.className='cthumb';ct.innerHTML=`<img src="${r.dataUrl}">`;}
-  chkP1();
-}
-
-function compressImg(file,q){
-  return new Promise(res=>{
-    const fr=new FileReader();
-    fr.onload=e=>{
-      const img=new Image();
-      img.onload=()=>{
-        const sc=Math.min(1,600/Math.max(img.width,img.height));
-        const w=Math.round(img.width*sc),h=Math.round(img.height*sc);
-        const cv=document.createElement('canvas');cv.width=w;cv.height=h;
-        const ctx=cv.getContext('2d');
-        ctx.fillStyle='#FFF';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
-        cv.toBlob(blob=>{
-          const fr2=new FileReader();
-          fr2.onload=ev=>res({dataUrl:ev.target.result,blob,
-            sizeKB:Math.round(blob.size/1024),origKB:Math.round(file.size/1024)});
-          fr2.readAsDataURL(blob);
-        },'image/jpeg',q);
-      };
-      img.src=e.target.result;
-    };
-    fr.readAsDataURL(file);
-  });
-}
-
-// ── 录音 ──────────────────────────────────
-async function toggleRec(cardId){
-  const card=cards.find(c=>String(c.id)===String(cardId));
-  const btn=document.getElementById('recbtn-'+cardId);
-  const st=document.getElementById('recst-'+cardId);
-  const box=document.getElementById('rb-'+cardId);
-
-  // 停止当前录音
-  if(activeRec&&activeRec.mr.state==='recording'){
-    activeRec.mr.stop();
-    if(activeRec.cardId!==cardId) return;
-    return;
-  }
-
-  // 申请麦克风
-  let stream;
-  try{stream=await navigator.mediaDevices.getUserMedia({audio:true});}
-  catch{st.textContent='⚠ 请在设置中允许麦克风权限';return;}
-
-  const chunks=[];
-  // 修复：iOS Safari 支持 audio/mp4，优先使用
-  let mimeType='audio/mp4',ext='m4a';
-  if(!MediaRecorder.isTypeSupported('audio/mp4')){
-    if(MediaRecorder.isTypeSupported('audio/aac')){mimeType='audio/aac';ext='aac';}
-    else if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus')){mimeType='audio/webm;codecs=opus';ext='webm';}
-    else if(MediaRecorder.isTypeSupported('audio/webm')){mimeType='audio/webm';ext='webm';}
-    else{mimeType='';ext='m4a';}
-  }
-
-  let mr;
-  try{mr=new MediaRecorder(stream,mimeType?{mimeType}:{});}
-  catch{mr=new MediaRecorder(stream);}
-  activeRec={mr,cardId};
-
-  mr.ondataavailable=e=>{if(e.data&&e.data.size>0)chunks.push(e.data);};
-  mr.onstop=()=>{
-    stream.getTracks().forEach(t=>t.stop());
-    activeRec=null;
-    const blob=new Blob(chunks,{type:mr.mimeType||'audio/mp4'});
-    // 取实际 mimeType 判断扩展名
-    const actualExt=mr.mimeType.includes('webm')?'webm':mr.mimeType.includes('ogg')?'ogg':'m4a';
-    const url=URL.createObjectURL(blob);
-    card.audioBlob=blob;card.audioName=`录音.${actualExt}`;card.audioExt=actualExt;card.audioDataUrl=url;
-    btn.className='rec-btn';btn.textContent='🎙 重新录音';
-    box.className='rec-box ok';
-    st.textContent=`✓ 录音完成（${actualExt}）`;st.className='rec-st ok';
-    const pl=document.getElementById('recpl-'+cardId);
-    if(pl){pl.style.display='block';pl.innerHTML=`<audio controls src="${url}"></audio>`;}
-  };
-
-  mr.start(100);
-  btn.className='rec-btn go';btn.textContent='⏹ 停止录音';
-  st.textContent='🔴 录音中… 说完点停止';st.className='rec-st';
-}
-
-// ═══════════════════════════════════════════
-// P2：预览
-// ═══════════════════════════════════════════
-function renderPreview(){
-  let ti=0,ts=0;
-  cards.forEach(c=>{if(c.imageSizeKB)ti+=c.imageSizeKB;if(c.audioBlob)ts+=Math.round(c.audioBlob.size/1024);});
-  document.getElementById('pmeta').innerHTML=`
-    <div class="pm"><div class="pml">牌组名称</div><div class="pmv">${esc(deckName)}</div></div>
-    <div class="pm"><div class="pml">卡片数量</div><div class="pmv">${cards.length} 张</div></div>
-    <div class="pm"><div class="pml">图片大小</div><div class="pmv">${fmtKB(ti)}</div></div>
-    <div class="pm"><div class="pml">录音大小</div><div class="pmv">${fmtKB(ts)}</div></div>`;
-  const pl=document.getElementById('plist');pl.innerHTML='';
-  cards.forEach(card=>{
-    const th=card.imageDataUrl
-      ?`<div class="pithumb"><img src="${card.imageDataUrl}"></div>`
-      :`<div class="pithumb"></div>`;
-    const sndtag=card.audioBlob
-      ?`<span class="ptag ok">🔊 有录音</span>`
-      :`<span class="ptag">无录音（TTS）</span>`;
-    const d=document.createElement('div');d.className='pi';
-    d.innerHTML=`${th}<div class="piinfo">
-      <div class="piname">${esc(card.name)}</div>
-      <div class="pitags"><span class="ptag ok">📷 ${card.imageSizeKB}KB</span>${sndtag}</div>
-    </div><div style="font-size:18px">✓</div>`;
-    pl.appendChild(d);
-  });
-}
-
-// ═══════════════════════════════════════════
-// 生成 .apkg
-// ═══════════════════════════════════════════
-async function doBuild(){
-  const btn=document.getElementById('btn-gen');
-  btn.textContent='生成中…';btn.disabled=true;
-  try{
-    if(!window.SQL){
-      await ldScript('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js');
-      window.SQL=await initSqlJs({locateFile:f=>'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'+f});
-    }
-    await ldScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
-    apkgBlob=await genApkg();
-    let ti=0,ts=0;
-    cards.forEach(c=>{if(c.imageSizeKB)ti+=c.imageSizeKB;if(c.audioBlob)ts+=Math.round(c.audioBlob.size/1024);});
-    document.getElementById('rdetail').innerHTML=
-      `牌组：<b>${esc(deckName)}</b><br>${cards.length} 张卡片 ｜ 图片 ${fmtKB(ti)} ｜ 录音 ${fmtKB(ts)}`;
-    goStep(3);
-  }catch(err){
-    const eb=document.getElementById('p2err');eb.textContent='生成失败：'+err.message;eb.classList.add('show');
-    console.error(err);
-  }finally{btn.textContent='✦ 生成 .apkg';btn.disabled=false;}
-}
-
-function dlApkg(){
-  if(!apkgBlob)return;
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(apkgBlob);
-  a.download=deckName+'.apkg';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-}
-
-async function genApkg(){
-  const MID=1731234567940,DID=1731234567941;
-  const now=Math.floor(Date.now()/1000),SEP='\x1f';
-  const midx={},mfiles=[];let mi=0;
-  for(const c of cards){
-    if(c.imageBlob){
-      const fn=`img_${mi}.jpg`;c._img=fn;midx[String(mi)]=fn;
-      mfiles.push({i:mi,buf:await c.imageBlob.arrayBuffer()});mi++;
-    }else c._img=null;
-    if(c.audioBlob){
-      const fn=`snd_${mi}.${c.audioExt||'m4a'}`;c._snd=fn;midx[String(mi)]=fn;
-      mfiles.push({i:mi,buf:await c.audioBlob.arrayBuffer()});mi++;
-    }else c._snd=null;
-  }
-
-  const css=`.card{font-family:'PingFang SC','Heiti SC','Microsoft YaHei',sans-serif;text-align:center;background:#FFF!important;color:#111!important;padding:0;margin:0}.night_mode .card{background:#FFF!important;color:#111!important}.iw{width:96%;margin:10px auto 0;position:relative;padding-top:96%;border-radius:16px;overflow:hidden;background:#F5F5F5}.iw img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}.qh{font-size:20px;color:#CCC;letter-spacing:5px;margin:12px 0 16px}.dv{border:none;border-top:2px solid #EEE;margin:8px 20px 0}.an{font-size:64px;font-weight:700;color:#111!important;letter-spacing:8px;margin:14px 0 20px;line-height:1.2}`;
-
-  const qfmt='<div class="iw">{{Front}}</div><p class="qh">这 是 什 么 ？</p>';
-  // 修复TTS回退：有录音用录音，无录音用TTS
-  const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
-
-  const mo={[MID]:{id:MID,name:'认知训练v6',type:0,mod:now,usn:-1,sortf:0,did:null,
-    tmpls:[{name:'卡片',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}],
-    flds:[{name:'Front',ord:0,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
-          {name:'Name', ord:1,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
-          {name:'Audio',ord:2,sticky:false,rtl:false,font:'Arial',size:20,media:[]}],
-    css,latexPre:'',latexPost:'',tags:[],vers:[]}};
-  const do_={[DID]:{id:DID,name:deckName,desc:'',extendRev:50,usn:-1,
-    collapsed:false,browserCollapsed:false,newToday:[0,0],revToday:[0,0],lrnToday:[0,0],timeToday:[0,0],dyn:0,conf:1,mod:now},
-    '1':{id:1,name:'Default',conf:1,extendRev:50,usn:0,collapsed:false,browserCollapsed:false,
-         newToday:[0,0],revToday:[0,0],lrnToday:[0,0],timeToday:[0,0],dyn:0,mod:now}};
-  const dc={'1':{id:1,name:'Default',replayq:true,
-    lapse:{leechFails:8,minInt:1,delays:[10],leechAction:0,mult:0},
-    rev:{perDay:100,fuzz:.05,ivlFct:1,maxIvl:36500,ease4:1.3,bury:true,minSpace:1},
-    timer:0,maxTaken:60,usn:0,
-    new:{perDay:5,delays:[1,10],separate:true,ints:[1,4,7],initialFactor:2500,bury:true,order:1},
-    mod:now,autoplay:true}};
-  const co={nextPos:1,estTimes:true,activeDecks:[1],sortType:'noteFld',timeLim:0,
-    sortBackwards:false,addToCur:true,curDeck:1,newBury:true,newSpread:0,
-    dueCounts:true,curModel:String(MID),collapseTime:1200};
-
-  const db=new SQL.Database();
-  db.run(`CREATE TABLE col(id integer primary key,crt integer not null,mod integer not null,scm integer not null,ver integer not null,dty integer not null,usn integer not null,ls integer not null,conf text not null,models text not null,decks text not null,dconf text not null,tags text not null)`);
-  db.run(`CREATE TABLE notes(id integer primary key,guid text not null,mid integer not null,mod integer not null,usn integer not null,tags text not null,flds text not null,sfld text not null,csum integer not null,flags integer not null,data text not null)`);
-  db.run(`CREATE TABLE cards(id integer primary key,nid integer not null,did integer not null,ord integer not null,mod integer not null,usn integer not null,type integer not null,queue integer not null,due integer not null,ivl integer not null,factor integer not null,reps integer not null,lapses integer not null,left integer not null,odue integer not null,odid integer not null,flags integer not null,data text not null)`);
-  db.run(`CREATE TABLE revlog(id integer primary key,cid integer not null,usn integer not null,ease integer not null,ivl integer not null,lastIvl integer not null,factor integer not null,time integer not null,type integer not null)`);
-  db.run(`CREATE TABLE graves(usn integer not null,oid integer not null,type integer not null)`);
-  db.run('INSERT INTO col VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',[1,now,now,now*1000,11,0,-1,0,
-    JSON.stringify(co),JSON.stringify(mo),JSON.stringify(do_),JSON.stringify(dc),'{}']);
-
-  const sha1=async s=>{const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s));
-    return parseInt(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,8),16);};
-  const rg=()=>Math.floor(Math.random()*0xFFFFFFFF).toString(16).padStart(8,'0');
-
-  for(let i=0;i<cards.length;i++){
-    const c=cards[i];
-    const nid=now*1000+i,cid=now*1000+i+500;
-    const front=c._img?`<img src="${c._img}">`:'';
-    const audio=c._snd?`[sound:${c._snd}]`:'';
-    const flds=front+SEP+c.name+SEP+audio;
-    const cs=await sha1(front||c.name);
-    db.run('INSERT INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,rg(),MID,now,-1,'',flds,front||c.name,cs,0,'']);
-    db.run('INSERT INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid,nid,DID,0,now,-1,0,0,i+1,0,0,0,0,0,0,0,0,'']);
-  }
-
-  const dbb=db.export();db.close();
-  const zip=new JSZip();
-  zip.file('collection.anki2',dbb);
-  zip.file('media',JSON.stringify(midx));
-  for(const{i,buf}of mfiles)zip.file(String(i),buf);
-  return await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
-}
-</script>
-
-</body>
-</html>
+.elabel{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+.ename{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-weight:600;background:#fff;
