@@ -4,217 +4,632 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>认知训练卡片制作工具</title>
+<title>认知训练卡片制作</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
 :root{
-  --cream:#FAF7F2;--warm:#F0EBE1;--border:#DDD5C8;--text:#2C2416;--muted:#8A7F72;
-  --accent:#7A5C3E;--accent-l:#C4A882;--green:#4A7C59;--green-l:#EAF3EE;
-  --red:#9B3A2A;--red-l:#FAEAE7;--blue:#2D5F8A;--blue-l:#E8F1F8;
-  --sh:0 2px 12px rgba(44,36,22,.08);--sh2:0 6px 24px rgba(44,36,22,.13);
+  --bg:#F7F4EF;--surface:#FFFFFF;--border:#E0D8CC;--text:#1E1A14;--muted:#9A8F82;
+  --accent:#5B7FA6;--accent-l:#EBF2F9;--accent-d:#3D6490;
+  --green:#4A7C59;--green-l:#EBF4EE;--red:#B83B2A;--red-l:#FAF0EE;
+  --active-border:#5B7FA6;--active-bg:#F4F8FC;
+  --sh:0 1px 4px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --sh2:0 2px 8px rgba(0,0,0,.1),0 8px 24px rgba(0,0,0,.08);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans SC',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
-header{background:var(--accent);color:#faf7f2;padding:18px 28px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
-header h1{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;letter-spacing:1px}
-header p{font-size:12px;opacity:.8;margin-top:2px}
-.main{max-width:820px;margin:0 auto;padding:28px 18px 80px}
-.steps{display:flex;background:var(--warm);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:28px}
-.step{flex:1;padding:11px 6px;text-align:center;font-size:12px;color:var(--muted);border-right:1px solid var(--border);cursor:pointer;transition:.15s}
-.step:last-child{border-right:none}
-.step.active{background:var(--accent);color:#fff;font-weight:500}
-.step .num{display:block;font-size:17px;font-weight:700;margin-bottom:1px}
-.panel{display:none}.panel.active{display:block}
-.instr{background:var(--blue-l);border:1px solid #a8c4e0;border-radius:10px;padding:16px 20px;margin-bottom:22px}
-.instr h3{font-size:14px;font-weight:600;color:var(--blue);margin-bottom:8px}
-.instr ol{padding-left:16px;font-size:13px;color:#2d4f6a;line-height:2}
-.instr li strong{color:var(--blue)}
-.compress-bar{background:var(--green-l);border:1px solid #a8cdb5;border-radius:8px;padding:10px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--green);flex-wrap:wrap}
-.compress-bar strong{font-size:14px}
-.compress-toggle{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--green)}
-.compress-toggle input[type=range]{width:80px;accent-color:var(--green)}
-.compress-toggle label{min-width:40px;text-align:right;font-weight:600}
-#card-list{display:flex;flex-direction:column;gap:10px}
-.card-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 18px;box-shadow:var(--sh)}
-.card-summary{display:grid;grid-template-columns:38px 1fr auto auto;gap:12px;align-items:center;cursor:pointer}
-.card-num{width:32px;height:32px;background:var(--warm);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--accent);flex-shrink:0}
-.name-input{font-size:16px;font-weight:600;border:none;border-bottom:2px solid var(--border);padding:3px 0;width:100%;background:transparent;color:var(--text);font-family:'Noto Serif SC',serif}
-.name-input:focus{outline:none;border-bottom-color:var(--accent)}
-.uploads{display:flex;gap:8px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans SC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* 上传区：更大，更好点击 */
-.uz{border:2px dashed var(–border);border-radius:10px;width:84px;height:76px;cursor:pointer;text-align:center;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(–cream);overflow:hidden;-webkit-tap-highlight-color:transparent}
-.uz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:16px}
-.uz .ico{font-size:22px}
-.uz .lbl{font-size:10px;color:var(–muted);margin-top:3px;line-height:1.3;text-align:center;padding:0 4px}
-.uz.ok{border-style:solid;border-color:var(–green);background:var(–green-l)}
-.uz.ok .lbl{color:var(–green);font-weight:500}
-.uz img{width:50px;height:50px;object-fit:cover;border-radius:5px;margin-bottom:2px}
-.uz .sz{font-size:9px;color:var(–green);font-weight:600}
-.expand-icon{font-size:11px;color:var(–muted);transition:.2s;flex-shrink:0}
-.card-item.open .expand-icon{transform:rotate(90deg)}
-.del-btn{width:28px;height:28px;border:1px solid var(–border);border-radius:50%;background:#fff;color:var(–muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.card-detail{display:none;padding-top:12px;border-top:1px solid var(–border);margin-top:10px}
-.card-item.open .card-detail{display:block}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.inf{display:flex;flex-direction:column;gap:4px}
-.inf label{font-size:11px;color:var(–muted);font-weight:500}
-.inf input{border:1px solid var(–border);border-radius:6px;padding:8px 10px;font-size:14px;font-family:‘Noto Sans SC’,sans-serif;background:var(–cream);color:var(–text)}
-.inf input:focus{outline:none;border-color:var(–accent-l);background:#fff}
+/* ── 页头 ── */
+.header{background:var(–text);color:#F7F4EF;padding:16px 20px;display:flex;align-items:center;gap:12px}
+.header-title{font-family:‘Noto Serif SC’,serif;font-size:17px;font-weight:700;letter-spacing:.5px}
+.header-sub{font-size:11px;opacity:.55;margin-top:2px}
+
+/* ── 步骤条 ── */
+.steps{display:flex;background:var(–surface);border-bottom:1px solid var(–border)}
+.step{flex:1;padding:11px 4px;text-align:center;font-size:11px;color:var(–muted);cursor:pointer;position:relative;transition:.15s}
+.step+.step::before{content:’’;position:absolute;left:0;top:20%;height:60%;width:1px;background:var(–border)}
+.step.active{color:var(–accent);font-weight:600}
+.step.active::after{content:’’;position:absolute;bottom:0;left:10%;right:10%;height:2px;background:var(–accent);border-radius:2px}
+.step .sn{display:block;font-size:15px;font-weight:700;margin-bottom:1px}
+.step.done .sn{color:var(–green)}
+
+/* ── 主内容 ── */
+.main{max-width:640px;margin:0 auto;padding:20px 16px 100px}
+
+/* ── Panel ── */
+.panel{display:none}.panel.active{display:block}
+
+/* ═══════════════════════════════
+STEP 0：新建 / 导入
+═══════════════════════════════ */
+.mode-cards{display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+.mode-card{background:var(–surface);border:2px solid var(–border);border-radius:14px;padding:20px;cursor:pointer;transition:.15s}
+.mode-card.selected{border-color:var(–accent);background:var(–accent-l)}
+.mode-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.mode-icon{width:36px;height:36px;border-radius:10px;background:var(–bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.mode-card.selected .mode-icon{background:var(–accent);filter:none}
+.mode-title{font-size:15px;font-weight:600}
+.mode-desc{font-size:12px;color:var(–muted)}
+.field-row{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:12px;color:var(–muted);font-weight:500}
+.field-input{border:1.5px solid var(–border);border-radius:8px;padding:10px 13px;font-size:15px;font-family:‘Noto Sans SC’,sans-serif;background:var(–bg);color:var(–text);width:100%;transition:.15s}
+.field-input:focus{outline:none;border-color:var(–accent);background:#fff}
+.import-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(–border);border-radius:8px;background:var(–bg);color:var(–text);font-size:13px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;position:relative;overflow:hidden;width:100%}
+.import-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:16px}
+.import-btn.ok{border-color:var(–green);background:var(–green-l);color:var(–green)}
+.import-status{font-size:12px;color:var(–muted);margin-top:6px}
+.import-status.ok{color:var(–green)}
+.mode-card.disabled{opacity:.4;pointer-events:none}
+
+/* ═══════════════════════════════
+STEP 1：编辑卡片
+═══════════════════════════════ */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.deck-name-tag{background:var(–surface);border:1px solid var(–border);border-radius:20px;padding:5px 12px;font-size:12px;color:var(–muted);display:flex;align-items:center;gap:5px}
+.deck-name-tag strong{color:var(–text)}
+.compress-ctl{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(–muted)}
+.compress-ctl input[type=range]{width:64px;accent-color:var(–accent)}
+.compress-ctl label{min-width:32px;font-weight:600;color:var(–accent)}
+
+#card-list{display:flex;flex-direction:column;gap:8px}
+
+/* ── 卡片（折叠） ── */
+.card-item{background:var(–surface);border:1.5px solid var(–border);border-radius:12px;overflow:hidden;box-shadow:var(–sh);transition:border-color .15s,box-shadow .15s}
+.card-item.editing{border-color:var(–active-border);box-shadow:var(–sh2)}
+
+.card-row{display:grid;grid-template-columns:28px 1fr auto 52px 52px;gap:8px;align-items:center;padding:11px 12px;min-height:58px}
+.card-idx{width:24px;height:24px;border-radius:50%;background:var(–bg);border:1px solid var(–border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(–muted);flex-shrink:0}
+.card-item.editing .card-idx{background:var(–accent);border-color:var(–accent);color:#fff}
+.card-name{font-size:15px;font-weight:600;font-family:‘Noto Serif SC’,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(–text)}
+.card-name.empty{color:var(–muted);font-weight:400;font-style:italic;font-family:‘Noto Sans SC’,sans-serif}
+.card-thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid var(–border);background:var(–bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
+.card-thumb img{width:100%;height:100%;object-fit:cover}
+
+/* 编辑/删除 文字按钮 */
+.card-act{display:flex;align-items:center;justify-content:center;padding:6px 4px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;font-family:‘Noto Sans SC’,sans-serif;border-radius:6px;width:100%}
+.card-act.edit{color:var(–accent)}
+.card-act.edit.done{color:var(–green)}
+.card-act.del{color:var(–red)}
+
+/* ── 卡片（展开编辑区） ── */
+.card-edit{display:none;border-top:1px solid var(–border);background:var(–active-bg);padding:14px 12px;display:flex;flex-direction:column;gap:14px}
+.card-item:not(.editing) .card-edit{display:none}
+.card-item.editing .card-edit{display:flex}
+
+.edit-section{display:flex;flex-direction:column;gap:6px}
+.edit-label{font-size:11px;font-weight:600;color:var(–muted);text-transform:uppercase;letter-spacing:.5px}
+.edit-name-input{border:1.5px solid var(–border);border-radius:8px;padding:10px 13px;font-size:16px;font-family:‘Noto Serif SC’,serif;font-weight:600;background:#fff;color:var(–text);width:100%}
+.edit-name-input:focus{outline:none;border-color:var(–accent)}
+
+/* 图片编辑区 */
+.img-edit-row{display:flex;align-items:center;gap:12px}
+.img-preview{width:80px;height:80px;border-radius:10px;border:1.5px solid var(–border);background:var(–bg);display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;flex-shrink:0}
+.img-preview img{width:100%;height:100%;object-fit:cover}
+.img-replace-btn{flex:1;padding:10px;border:1.5px dashed var(–border);border-radius:8px;background:#fff;color:var(–accent);font-size:13px;font-weight:500;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;position:relative;overflow:hidden;text-align:center}
+.img-replace-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:16px}
+.img-replace-btn.ok{border-style:solid;border-color:var(–green);color:var(–green)}
+.img-size{font-size:10px;color:var(–muted);margin-top:3px;text-align:center}
 
 /* 录音区 */
-.rec-zone{border:2px dashed var(–border);border-radius:10px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;background:var(–cream)}
-.rec-zone.ok{border-style:solid;border-color:var(–green);background:var(–green-l)}
-.rec-btn{background:var(–accent);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;display:flex;align-items:center;gap:6px}
-.rec-btn.recording{background:#c62828;animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
-.rec-file-btn{background:transparent;color:var(–accent);border:1px solid var(–accent-l);border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;position:relative;overflow:hidden}
-.rec-file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:16px}
-.rec-status{font-size:11px;color:var(–muted);text-align:center}
+.rec-area{background:#fff;border:1.5px solid var(–border);border-radius:10px;padding:12px}
+.rec-area.ok{border-color:var(–green);background:var(–green-l)}
+.rec-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;border:none;border-radius:8px;background:var(–accent);color:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;transition:.15s}
+.rec-btn.recording{background:var(–red);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.6}}
+.rec-status{font-size:12px;color:var(–muted);margin-top:8px}
 .rec-status.ok{color:var(–green);font-weight:500}
-.rec-preview{display:none;width:100%}
-.rec-preview audio{width:100%;height:36px}
+.rec-player{margin-top:8px;display:none}
+.rec-player audio{width:100%;height:36px}
 
-.add-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border:2px dashed var(–border);border-radius:12px;background:transparent;color:var(–muted);font-size:14px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;margin-top:4px;-webkit-tap-highlight-color:transparent}
-.action-bar{display:flex;gap:10px;margin-top:24px;align-items:center;flex-wrap:wrap}
+.add-card-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px;border:2px dashed var(–border);border-radius:12px;background:transparent;color:var(–muted);font-size:14px;cursor:pointer;font-family:‘Noto Sans SC’,sans-serif;margin-top:4px}
+.add-card-btn:active{background:var(–surface)}
 
-/* 修复4：按钮始终显示为可点击状态，用颜色区分状态而非灰色 */
-.btn{padding:12px 24px;border-radius:10px;font-size:15px;font-weight:500;cursor:pointer;border:none;font-family:‘Noto Sans SC’,sans-serif;display:flex;align-items:center;gap:7px;-webkit-tap-highlight-color:transparent}
-.btn-primary{background:var(–accent);color:#fff;box-shadow:0 2px 8px rgba(122,92,62,.3)}
-.btn-sec{background:#fff;color:var(–text);border:1px solid var(–border)}
-.btn-green{background:var(–green);color:#fff;box-shadow:0 2px 8px rgba(74,124,89,.3)}
-/* 不用 disabled 灰色，改用半透明但保持颜色 */
-.btn.not-ready{opacity:.6}
-.status{font-size:12px;color:var(–muted);flex:1;text-align:right}
-.rev-item{background:#fff;border:1px solid var(–border);border-radius:10px;padding:13px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;box-shadow:var(–sh)}
-.err-box{background:var(–red-l);border:1px solid #e0a090;border-radius:8px;padding:11px 15px;margin-top:10px;font-size:13px;color:var(–red);display:none}
-.err-box.show{display:block}
-.result{background:var(–green-l);border:1px solid #a8cdb5;border-radius:12px;padding:28px;margin-top:20px;text-align:center}
-.result h3{font-family:‘Noto Serif SC’,serif;font-size:20px;color:var(–green);margin-bottom:10px}
-.result p{font-size:13px;color:#4a7c59;line-height:1.9}
-.result-btns{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
-.how-to{margin-top:18px;padding:14px;background:#fff;border-radius:8px;text-align:left;font-size:12px;color:#4a7c59;line-height:2}
-.size-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.size-tag{background:var(–warm);border:1px solid var(–border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(–muted)}
-.size-tag span{color:var(–accent);font-weight:600}
-@media(max-width:480px){
-.info-grid{grid-template-columns:1fr}
-.compress-bar{flex-direction:column;align-items:flex-start}
-.compress-toggle{margin-left:0}
-}
+/* ═══════════════════════════════
+STEP 2：预览
+═══════════════════════════════ */
+.preview-meta{background:var(–surface);border:1px solid var(–border);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;gap:16px;flex-wrap:wrap}
+.meta-item{display:flex;flex-direction:column;gap:2px}
+.meta-label{font-size:10px;color:var(–muted);font-weight:500}
+.meta-value{font-size:14px;font-weight:600;color:var(–text)}
+.preview-list{display:flex;flex-direction:column;gap:8px}
+.preview-item{background:var(–surface);border:1px solid var(–border);border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:center}
+.preview-thumb{width:52px;height:52px;border-radius:8px;object-fit:cover;border:1px solid var(–border);flex-shrink:0;background:var(–bg);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}
+.preview-thumb img{width:100%;height:100%;object-fit:cover}
+.preview-info{flex:1;min-width:0}
+.preview-name{font-size:16px;font-weight:700;font-family:‘Noto Serif SC’,serif;margin-bottom:4px}
+.preview-tags{display:flex;gap:6px;flex-wrap:wrap}
+.ptag{font-size:11px;padding:2px 8px;border-radius:10px;background:var(–bg);border:1px solid var(–border);color:var(–muted)}
+.ptag.ok{background:var(–green-l);border-color:#a8cdb5;color:var(–green)}
+.preview-check{font-size:18px;flex-shrink:0}
+
+/* ═══════════════════════════════
+STEP 3：结果
+═══════════════════════════════ */
+.result-card{background:var(–surface);border:1px solid var(–border);border-radius:14px;padding:32px 24px;text-align:center;box-shadow:var(–sh)}
+.result-icon{font-size:48px;margin-bottom:12px}
+.result-title{font-family:‘Noto Serif SC’,serif;font-size:21px;font-weight:700;margin-bottom:8px}
+.result-detail{font-size:13px;color:var(–muted);line-height:2;margin-bottom:20px}
+.result-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.how-to{background:var(–bg);border-radius:10px;padding:14px 16px;text-align:left;font-size:12px;color:var(–muted);line-height:2.2}
+.how-to strong{color:var(–text)}
+
+/* ═══════════════════════════════
+공통 버튼
+═══════════════════════════════ */
+.btn{padding:12px 22px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;border:none;font-family:‘Noto Sans SC’,sans-serif;display:inline-flex;align-items:center;gap:6px;transition:.15s}
+.btn-primary{background:var(–accent);color:#fff}
+.btn-primary:disabled{background:#C5CBD3;cursor:not-allowed}
+.btn-green{background:var(–green);color:#fff}
+.btn-green:disabled{background:#C5CBD3;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(–accent);border:1.5px solid var(–accent);padding:11px 20px}
+.btn-sec{background:var(–surface);color:var(–text);border:1.5px solid var(–border)}
+
+.bottom-bar{display:flex;align-items:center;gap:10px;margin-top:22px}
+.spacer{flex:1}
+
+/* ── 에러 박스 ── */
+.err{background:var(–red-l);border:1px solid #e0a090;border-radius:8px;padding:10px 14px;font-size:13px;color:var(–red);display:none;margin-top:10px}
+.err.show{display:block}
 </style>
 
 </head>
 <body>
-<header>
-  <div style="font-size:26px">🃏</div>
-  <div>
-    <h1>认知训练卡片制作</h1>
-    <p>拍照录音 · 自动压缩 · 生成 Anki 牌组</p>
-  </div>
-</header>
-<div class="main">
-  <div class="steps">
-    <div class="step active" onclick="goStep(0)"><span class="num">①</span>添加卡片</div>
-    <div class="step" onclick="goStep(1)"><span class="num">②</span>检查预览</div>
-    <div class="step" onclick="goStep(2)"><span class="num">③</span>下载文件</div>
-  </div>
 
-  <!-- Panel 0 -->
+<div class="header">
+  <div style="font-size:22px">🃏</div>
+  <div>
+    <div class="header-title">认知训练卡片制作</div>
+    <div class="header-sub">拍照 · 录音 · 生成 Anki 牌组</div>
+  </div>
+</div>
+
+<div class="steps">
+  <div class="step active" id="step0"><span class="sn">①</span>选择模式</div>
+  <div class="step" id="step1"><span class="sn">②</span>编辑卡片</div>
+  <div class="step" id="step2"><span class="sn">③</span>检查预览</div>
+  <div class="step" id="step3"><span class="sn">④</span>下载文件</div>
+</div>
+
+<div class="main">
+
+  <!-- ── PANEL 0：选择模式 ── -->
 
   <div class="panel active" id="p0">
-    <div class="instr">
-      <h3>📖 使用说明</h3>
-      <ol>
-        <li>点击 <strong>添加卡片</strong>，填写物品名称</li>
-        <li>点📷可<strong>直接拍照</strong>或从相册选图，自动压缩</li>
-        <li>点🎙可<strong>直接录音</strong>或上传已有录音文件</li>
-        <li>填写描述信息（可选），点<strong>下一步</strong></li>
-      </ol>
+    <div class="mode-cards">
+
+```
+  <!-- 新建 -->
+  <div class="mode-card" id="mc-new" onclick="selectMode('new')">
+    <div class="mode-card-header">
+      <div class="mode-icon">📝</div>
+      <div>
+        <div class="mode-title">新建牌组</div>
+        <div class="mode-desc">从头开始制作新的卡片</div>
+      </div>
     </div>
-    <div class="compress-bar">
-      <div>🗜 图片自动压缩 · 4MB→约 <strong id="est-size">100KB</strong></div>
-      <div class="compress-toggle">
-        质量：<input type="range" id="quality-slider" min="30" max="90" value="72" oninput="updateQ(this.value)">
-        <label id="quality-label">72%</label>
+    <div class="field-row">
+      <label class="field-label">牌组名称</label>
+      <input class="field-input" id="deck-name-input" type="text" placeholder="例：妈妈的日常物品"
+        onclick="event.stopPropagation();selectMode('new')"
+        oninput="updateStep0Btn()">
+    </div>
+  </div>
+
+  <!-- 导入 -->
+  <div class="mode-card" id="mc-import" onclick="selectMode('import')">
+    <div class="mode-card-header">
+      <div class="mode-icon">📂</div>
+      <div>
+        <div class="mode-title">导入已有牌组</div>
+        <div class="mode-desc">载入 .apkg 文件继续编辑</div>
+      </div>
+    </div>
+    <div class="import-btn" id="import-btn" onclick="event.stopPropagation();selectMode('import')">
+      <input type="file" accept=".apkg" id="apkg-input" onchange="handleImport(event)">
+      <span>选择 .apkg 文件</span>
+    </div>
+    <div class="import-status" id="import-status">尚未选择文件</div>
+  </div>
+
+</div>
+<div class="bottom-bar">
+  <div class="spacer"></div>
+  <button class="btn btn-primary" id="btn-step0" onclick="goStep(1)" disabled>下一步 →</button>
+</div>
+```
+
+  </div>
+
+  <!-- ── PANEL 1：编辑卡片 ── -->
+
+  <div class="panel" id="p1">
+    <div class="toolbar">
+      <div class="deck-name-tag">🗂 <strong id="deck-name-display"></strong></div>
+      <div class="compress-ctl">
+        压缩质量：
+        <input type="range" id="q-slider" min="30" max="90" value="72" oninput="updateQ(this.value)">
+        <label id="q-label">72%</label>
       </div>
     </div>
     <div id="card-list"></div>
-    <button class="add-btn" onclick="addCard()"><span style="font-size:20px">＋</span> 添加一张卡片</button>
-    <div class="action-bar">
-      <button class="btn btn-sec" onclick="loadSample()">载入示例</button>
-      <span class="status" id="st0"></span>
-      <button class="btn btn-primary" id="next-btn" onclick="goStep(1)">下一步：检查预览 →</button>
+    <button class="add-card-btn" onclick="addCard()">＋ 添加一张卡片</button>
+    <div class="bottom-bar">
+      <button class="btn btn-sec" onclick="goStep(0)">← 返回</button>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="btn-step1" onclick="goStep(2)" disabled>下一步 →</button>
     </div>
   </div>
 
-  <!-- Panel 1 -->
-
-  <div class="panel" id="p1">
-    <div class="size-bar" id="size-bar"></div>
-    <div id="rev-list"></div>
-    <div class="err-box" id="err-box"></div>
-    <div class="action-bar">
-      <button class="btn btn-sec" onclick="goStep(0)">← 返回修改</button>
-      <span class="status" id="st1"></span>
-      <button class="btn btn-green" id="gen-btn" onclick="buildApkg()">✦ 生成 .apkg</button>
-    </div>
-  </div>
-
-  <!-- Panel 2 -->
+  <!-- ── PANEL 2：预览 ── -->
 
   <div class="panel" id="p2">
-    <div class="result">
-      <div style="font-size:44px;margin-bottom:10px">✅</div>
-      <h3>牌组生成成功！</h3>
-      <p id="result-detail"></p>
+    <div class="preview-meta" id="preview-meta"></div>
+    <div class="preview-list" id="preview-list"></div>
+    <div class="err show" id="preview-err" style="display:none"></div>
+    <div class="bottom-bar">
+      <button class="btn btn-sec" onclick="goStep(1)">← 返回</button>
+      <div class="spacer"></div>
+      <button class="btn btn-green" id="btn-gen" onclick="buildApkg()">✦ 生成 .apkg</button>
+    </div>
+  </div>
+
+  <!-- ── PANEL 3：结果 ── -->
+
+  <div class="panel" id="p3">
+    <div class="result-card">
+      <div class="result-icon">✅</div>
+      <div class="result-title">牌组生成成功！</div>
+      <div class="result-detail" id="result-detail"></div>
       <div class="result-btns">
         <button class="btn btn-green" onclick="downloadApkg()">⬇ 下载 .apkg</button>
         <button class="btn btn-sec" onclick="goStep(0)">重新制作</button>
       </div>
       <div class="how-to">
-        <strong>导入方法：</strong><br>
-        iPhone：点下载，弹出菜单选"在Anki中打开"<br>
-        Android：下载后点文件选Anki打开<br>
-        电脑：Anki → 文件 → 导入
+        <strong>iPhone 导入：</strong>点下载 → 弹出菜单选"在 Anki 中打开"<br>
+        <strong>电脑导入：</strong>Anki → 文件 → 导入
       </div>
     </div>
   </div>
-</div>
+
+</div><!-- /main -->
 
 <script>
-// ── 状态 ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// 状态
+// ═══════════════════════════════════════════════════════
+let mode = null;          // 'new' | 'import'
+let deckName = '';
 let cards = [];
 let apkgBlob = null;
+let activeRecId = null;   // 当前录音的卡片id
 let mediaRecorder = null;
-let recChunks = [];
+let currentEditId = null; // 当前展开编辑的卡片id
 
-function getQ(){ return parseInt(document.getElementById('quality-slider').value)/100; }
-function updateQ(v){
-  document.getElementById('quality-label').textContent=v+'%';
-  const kb=Math.round(4000*(v/90)*0.06);
-  document.getElementById('est-size').textContent=(kb-20)+'~'+(kb+40)+'KB';
+// ═══════════════════════════════════════════════════════
+// 工具函数
+// ═══════════════════════════════════════════════════════
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtKB(kb){return kb>=1024?(kb/1024).toFixed(1)+'MB':kb+'KB';}
+function getQ(){return parseInt(document.getElementById('q-slider').value)/100;}
+function updateQ(v){document.getElementById('q-label').textContent=v+'%';}
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector(`script[src="${src}"]`)){res();return;}
+    const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);
+  });
 }
 
-// ── 图片压缩 ────────────────────────────────────────────────────────────────
-function compressImage(file,quality,maxPx){
-  maxPx=maxPx||600;
+// ═══════════════════════════════════════════════════════
+// 步骤导航
+// ═══════════════════════════════════════════════════════
+function goStep(n){
+  if(n===2) renderPreview();
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+  document.querySelectorAll('.step').forEach((s,i)=>{
+    s.classList.toggle('active',i===n);
+    s.classList.toggle('done',i<n);
+  });
+  window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════════════════
+// STEP 0：模式选择
+// ═══════════════════════════════════════════════════════
+function selectMode(m){
+  mode=m;
+  document.getElementById('mc-new').classList.toggle('selected',m==='new');
+  document.getElementById('mc-import').classList.toggle('selected',m==='import');
+  document.getElementById('mc-new').classList.toggle('disabled',m==='import');
+  document.getElementById('mc-import').classList.toggle('disabled',m==='new');
+  // 取消互斥：允许切换
+  document.getElementById('mc-new').classList.remove('disabled');
+  document.getElementById('mc-import').classList.remove('disabled');
+  updateStep0Btn();
+}
+
+function updateStep0Btn(){
+  const nameOk = mode==='new' && document.getElementById('deck-name-input').value.trim().length>0;
+  const importOk = mode==='import' && cards.length>0;
+  document.getElementById('btn-step0').disabled = !(nameOk||importOk);
+  if(mode==='new'&&document.getElementById('deck-name-input').value.trim()){
+    deckName=document.getElementById('deck-name-input').value.trim();
+  }
+}
+
+// ── 导入 .apkg ─────────────────────────────────────────
+async function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const statusEl=document.getElementById('import-status');
+  const btnEl=document.getElementById('import-btn');
+  statusEl.textContent='解析中…';statusEl.className='import-status';
+
+  try{
+    if(!window.JSZip) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    if(!window.SQL){
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js');
+      window.SQL=await initSqlJs({locateFile:f=>'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'+f});
+    }
+
+    const zip=await JSZip.loadAsync(await file.arrayBuffer());
+
+    // 读 media 索引
+    const mediaJson=await zip.file('media').async('string');
+    const mediaIndex=JSON.parse(mediaJson); // {"0":"img_0.jpg","1":"snd_0.m4a",...}
+    // 反转：文件名 → zip内编号
+    const nameToIdx={};
+    Object.entries(mediaIndex).forEach(([idx,name])=>nameToIdx[name]=idx);
+
+    // 读 SQLite
+    const dbBuf=await zip.file('collection.anki2').async('arraybuffer');
+    const db=new SQL.Database(new Uint8Array(dbBuf));
+
+    // 读牌组名
+    const colRes=db.exec('SELECT decks FROM col LIMIT 1');
+    if(colRes.length){
+      const decksObj=JSON.parse(colRes[0].values[0][0]);
+      const deckEntries=Object.values(decksObj).filter(d=>d.id!==1&&d.name!=='Default');
+      if(deckEntries.length) deckName=deckEntries[0].name;
+      else deckName=file.name.replace('.apkg','');
+    }
+
+    // 读 notes：flds 字段用 \x1f 分隔
+    // 字段顺序：Front | Name | Audio（v3格式）
+    // 兼容旧格式：Front | Name | Back
+    const notesRes=db.exec('SELECT flds FROM notes');
+    const SEP='\x1f';
+    const imported=[];
+
+    for(const row of notesRes[0]?.values||[]){
+      const flds=row[0].split(SEP);
+      const frontHtml=flds[0]||'';
+      const nameVal=flds[1]||'';
+      const audioField=flds[2]||'';
+
+      if(!nameVal.trim()) continue; // 跳过无名称
+
+      const card={
+        id:Date.now()+Math.random(),
+        name:nameVal.trim(),
+        imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
+        audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a',
+        _img:null,_snd:null
+      };
+
+      // 提取图片文件名（Front字段里的 <img src="文件名">）
+      const imgMatch=frontHtml.match(/src="([^"]+\.(jpg|jpeg|png|gif|webp))"/i);
+      if(imgMatch){
+        const fname=imgMatch[1];
+        const zidx=nameToIdx[fname];
+        if(zidx!=null){
+          const buf=await zip.file(zidx).async('arraybuffer');
+          const blob=new Blob([buf],{type:'image/jpeg'});
+          const dataUrl=await blobToDataUrl(blob);
+          card.imageBlob=blob;card.imageDataUrl=dataUrl;
+          card.imageSizeKB=Math.round(blob.size/1024);card.origKB=card.imageSizeKB;
+        }
+      }
+
+      // 提取音频文件名（Audio字段 [sound:文件名]）
+      const sndMatch=audioField.match(/\[sound:([^\]]+)\]/);
+      if(sndMatch){
+        const fname=sndMatch[1];
+        const zidx=nameToIdx[fname];
+        if(zidx!=null){
+          const buf=await zip.file(zidx).async('arraybuffer');
+          const ext=fname.split('.').pop().toLowerCase();
+          const mime={'m4a':'audio/mp4','mp3':'audio/mpeg','ogg':'audio/ogg','webm':'audio/webm'}[ext]||'audio/mp4';
+          const blob=new Blob([buf],{type:mime});
+          const url=URL.createObjectURL(blob);
+          card.audioBlob=blob;card.audioName=fname;card.audioExt=ext;card.audioDataUrl=url;
+        }
+      }
+
+      imported.push(card);
+    }
+    db.close();
+
+    if(imported.length===0){
+      statusEl.textContent='未找到有效卡片（所有卡片均无名称）';return;
+    }
+
+    cards=imported;
+    selectMode('import');
+    btnEl.className='import-btn ok';
+    statusEl.textContent=`✓ 已解析 ${imported.length} 张卡片，牌组：${deckName}`;
+    statusEl.className='import-status ok';
+    updateStep0Btn();
+
+  }catch(err){
+    statusEl.textContent='解析失败：'+err.message;
+    console.error(err);
+  }
+}
+
+function blobToDataUrl(blob){
+  return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(blob);});
+}
+
+// ═══════════════════════════════════════════════════════
+// STEP 1：卡片编辑
+// ═══════════════════════════════════════════════════════
+function addCard(){
+  const id=Date.now()+Math.random();
+  cards.push({id,name:'',imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
+    audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'});
+  currentEditId=id;
+  renderList();
+  setTimeout(()=>{
+    const el=document.getElementById('ci-'+id);
+    el&&el.scrollIntoView({behavior:'smooth',block:'center'});
+  },60);
+}
+
+function removeCard(id){
+  if(!confirm('删除这张卡片？'))return;
+  cards=cards.filter(c=>String(c.id)!==String(id));
+  if(currentEditId===id)currentEditId=null;
+  renderList();
+}
+
+function toggleEdit(id){
+  currentEditId=(currentEditId===id)?null:id;
+  renderList();
+  if(currentEditId){
+    setTimeout(()=>{
+      const el=document.getElementById('ci-'+id);
+      el&&el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },60);
+  }
+}
+
+function upd(id,field,val){
+  const c=cards.find(c=>String(c.id)===String(id));
+  if(c){c[field]=val;updateStep1Btn();}
+}
+
+function updateStep1Btn(){
+  const ok=cards.length>0&&cards.every(c=>c.name.trim()&&c.imageBlob);
+  document.getElementById('btn-step1').disabled=!ok;
+}
+
+// ── 渲染卡片列表 ──────────────────────────────────────
+function renderList(){
+  document.getElementById('deck-name-display').textContent=deckName;
+  const list=document.getElementById('card-list');
+  list.innerHTML='';
+  cards.forEach((card,idx)=>{
+    const isEdit=String(currentEditId)===String(card.id);
+    const div=document.createElement('div');
+    div.className='card-item'+(isEdit?' editing':'');
+    div.id='ci-'+card.id;
+
+    // 缩略图
+    const thumbHtml=card.imageDataUrl
+      ?`<div class="card-thumb"><img src="${card.imageDataUrl}"></div>`
+      :`<div class="card-thumb">📷</div>`;
+
+    // 折叠行
+    div.innerHTML=`
+      <div class="card-row">
+        <div class="card-idx">${idx+1}</div>
+        <div class="${card.name?'card-name':'card-name empty'}">${card.name||'未填名称'}</div>
+        ${thumbHtml}
+        <button class="card-act edit ${isEdit?'done':''}" onclick="toggleEdit('${card.id}')">${isEdit?'完成':'编辑'}</button>
+        <button class="card-act del" onclick="removeCard('${card.id}')">删除</button>
+      </div>
+      <div class="card-edit">
+        ${buildEditSection(card)}
+      </div>`;
+
+    list.appendChild(div);
+    if(isEdit) bindEditEvents(div,card);
+  });
+  updateStep1Btn();
+}
+
+function buildEditSection(card){
+  const imgBtnText=card.imageDataUrl?'重新拍照 / 选图':'📷 拍照 / 选图';
+  const imgBtnClass=card.imageDataUrl?'img-replace-btn ok':'img-replace-btn';
+  const imgSizeText=card.imageDataUrl?`已压缩 ${card.imageSizeKB}KB（原 ${card.origKB}KB）`:'';
+  const recOk=!!card.audioBlob;
+  const recBtnText=recOk?'🎙 重新录音':'🎙 开始录音';
+  const recStatusText=recOk?`✓ 录音完成（${card.audioExt}）`:'点按钮开始录音';
+  const playerHtml=card.audioDataUrl?`<div class="rec-player" style="display:block"><audio controls src="${card.audioDataUrl}"></audio></div>`:'<div class="rec-player"></div>';
+
+  return `
+    <div class="edit-section">
+      <div class="edit-label">名称</div>
+      <input class="edit-name-input" type="text" placeholder="物品名称"
+        value="${esc(card.name)}"
+        oninput="upd('${card.id}','name',this.value);document.querySelector('#ci-${card.id} .card-name').textContent=this.value||'未填名称';document.querySelector('#ci-${card.id} .card-name').className=this.value?'card-name':'card-name empty'">
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-label">图片</div>
+      <div class="img-edit-row">
+        <div class="img-preview" id="ip-${card.id}">
+          ${card.imageDataUrl?`<img src="${card.imageDataUrl}">`:'📷'}
+        </div>
+        <div>
+          <div class="${imgBtnClass}" id="ib-${card.id}">
+            ${imgBtnText}
+            <input type="file" accept="image/*" onchange="handleImg(event,'${card.id}')">
+          </div>
+          <div class="img-size" id="is-${card.id}">${imgSizeText}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="edit-section">
+      <div class="edit-label">录音</div>
+      <div class="rec-area ${recOk?'ok':''}" id="ra-${card.id}">
+        <button class="rec-btn" id="rb-${card.id}" onclick="toggleRec('${card.id}')">${recBtnText}</button>
+        <div class="rec-status ${recOk?'ok':''}" id="rs-${card.id}">${recStatusText}</div>
+        ${playerHtml}
+      </div>
+    </div>`;
+}
+
+function bindEditEvents(container,card){
+  // 图片输入已用 inline onchange，无需额外绑定
+}
+
+// ── 图片处理 ──────────────────────────────────────────
+async function handleImg(e,cardId){
+  const file=e.target.files[0];if(!file)return;
+  const card=cards.find(c=>String(c.id)===String(cardId));
+  const r=await compressImage(file,getQ());
+  card.imageDataUrl=r.dataUrl;card.imageBlob=r.blob;card.imageSizeKB=r.sizeKB;card.origKB=r.origKB;
+  // 更新局部UI，不重新渲染整个列表（避免打断编辑状态）
+  const ip=document.getElementById('ip-'+cardId);
+  if(ip)ip.innerHTML=`<img src="${r.dataUrl}">`;
+  const ib=document.getElementById('ib-'+cardId);
+  if(ib){ib.className='img-replace-btn ok';ib.childNodes[0].textContent='重新拍照 / 选图';}
+  const is=document.getElementById('is-'+cardId);
+  if(is)is.textContent=`已压缩 ${r.sizeKB}KB（原 ${r.origKB}KB）`;
+  // 更新折叠行缩略图
+  const thumb=document.querySelector(`#ci-${cardId} .card-thumb`);
+  if(thumb)thumb.innerHTML=`<img src="${r.dataUrl}">`;
+  updateStep1Btn();
+}
+
+function compressImage(file,quality){
   return new Promise(resolve=>{
     const reader=new FileReader();
     reader.onload=e=>{
       const img=new Image();
       img.onload=()=>{
-        const scale=Math.min(1,maxPx/Math.max(img.width,img.height));
+        const scale=Math.min(1,600/Math.max(img.width,img.height));
         const w=Math.round(img.width*scale),h=Math.round(img.height*scale);
         const canvas=document.createElement('canvas');
         canvas.width=w;canvas.height=h;
         const ctx=canvas.getContext('2d');
-        ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,w,h);
+        ctx.fillStyle='#FFF';ctx.fillRect(0,0,w,h);
         ctx.drawImage(img,0,0,w,h);
         canvas.toBlob(blob=>{
-          const r2=new FileReader();
-          r2.onload=ev=>resolve({dataUrl:ev.target.result,blob,sizeKB:Math.round(blob.size/1024),origSizeKB:Math.round(file.size/1024)});
-          r2.readAsDataURL(blob);
+          const r=new FileReader();
+          r.onload=ev=>resolve({dataUrl:ev.target.result,blob,
+            sizeKB:Math.round(blob.size/1024),origKB:Math.round(file.size/1024)});
+          r.readAsDataURL(blob);
         },'image/jpeg',quality);
       };
       img.src=e.target.result;
@@ -223,311 +638,185 @@ function compressImage(file,quality,maxPx){
   });
 }
 
-// ── 导航 ───────────────────────────────────────────────────────────────────
-function goStep(n){
-  if(n===1&&cards.length===0){setSt(0,'请先添加卡片');return;}
-  if(n===1)renderReview();
-  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
-  document.querySelectorAll('.step').forEach((s,i)=>s.classList.toggle('active',i===n));
-}
-function setSt(p,msg){const e=document.getElementById('st'+p);e.textContent=msg;setTimeout(()=>e.textContent='',3500);}
-
-// ── 卡片管理 ────────────────────────────────────────────────────────────────
-function addCard(data){
-  const id=Date.now()+Math.random();
-  cards.push(data||{id,name:'',sensory:'',use:'',context:'',hook:'',
-    imageDataUrl:null,imageBlob:null,imageSizeKB:null,origSizeKB:null,
-    audioBlob:null,audioName:null,audioDataUrl:null});
-  renderList();
-  setTimeout(()=>{const el=document.getElementById('ci-'+cards[cards.length-1].id);if(el)el.classList.add('open');},40);
-}
-function removeCard(id){cards=cards.filter(c=>String(c.id)!==String(id));renderList();}
-
-function renderList(){
-  const list=document.getElementById('card-list');
-  list.innerHTML='';
-  // 修复4：按钮颜色，有卡片时正常显示，无卡片时半透明
-  const nb=document.getElementById('next-btn');
-  if(nb)nb.classList.toggle('not-ready',cards.length===0);
-
-  cards.forEach((card,idx)=>{
-    const div=document.createElement('div');
-    div.className='card-item';div.id='ci-'+card.id;
-
-    // 修复2：图片区，不带 capture 属性让系统弹出"拍照/相册"选择框
-    const imgZone=card.imageDataUrl
-      ?`<div class="uz ok" data-type="image" data-id="${card.id}">
-          <input type="file" accept="image/*">
-          <img src="${card.imageDataUrl}">
-          <span class="sz">${card.imageSizeKB}KB ✓</span>
-        </div>`
-      :`<div class="uz" data-type="image" data-id="${card.id}">
-          <input type="file" accept="image/*">
-          <span class="ico">📷</span>
-          <span class="lbl">拍照<br>或相册</span>
-        </div>`;
-
-    div.innerHTML=`
-      <div class="card-summary" onclick="toggleOpen('${card.id}')">
-        <div class="card-num">${idx+1}</div>
-        <div>
-          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">物品名称</div>
-          <input class="name-input" type="text" placeholder="例：苹果、水壶…"
-            value="${esc(card.name)}"
-            onclick="event.stopPropagation()"
-            oninput="upd('${card.id}','name',this.value)">
-        </div>
-        <div class="uploads">${imgZone}</div>
-        <div style="display:flex;align-items:center;gap:5px">
-          <span class="expand-icon">▶</span>
-          <button class="del-btn" onclick="event.stopPropagation();removeCard('${card.id}')">×</button>
-        </div>
-      </div>
-      <div class="card-detail">
-        <!-- 修复3：录音区，支持直接录音 + 上传文件两种方式 -->
-        <div class="rec-zone ${card.audioBlob?'ok':''}" id="rz-${card.id}">
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center">
-            <button class="rec-btn" id="rb-${card.id}" onclick="toggleRec('${card.id}')">
-              🎙 开始录音
-            </button>
-            <div class="rec-file-btn">
-              📁 选择文件
-              <input type="file" accept="audio/*" onchange="handleAudioFile(event,'${card.id}')">
-            </div>
-          </div>
-          <div class="rec-status ${card.audioBlob?'ok':''}" id="rs-${card.id}">
-            ${card.audioName?'✓ '+card.audioName:'点击录音 或 上传音频文件'}
-          </div>
-          <div class="rec-preview" id="rp-${card.id}" style="${card.audioDataUrl?'display:block':''}">
-            ${card.audioDataUrl?`<audio controls src="${card.audioDataUrl}"></audio>`:''}
-          </div>
-        </div>
-        <div class="info-grid" style="margin-top:12px">
-          <div class="inf"><label>外观感受（颜色、形状、气味）</label>
-            <input type="text" placeholder="圆圆的，红色，清香" value="${esc(card.sensory)}" oninput="upd('${card.id}','sensory',this.value)"></div>
-          <div class="inf"><label>核心用途（一句话）</label>
-            <input type="text" placeholder="直接剥皮吃" value="${esc(card.use)}" oninput="upd('${card.id}','use',this.value)"></div>
-          <div class="inf"><label>生活情境</label>
-            <input type="text" placeholder="饭后吃一个" value="${esc(card.context)}" oninput="upd('${card.id}','context',this.value)"></div>
-          <div class="inf"><label>记忆钩（顺口溜）</label>
-            <input type="text" placeholder="一天一苹果…" value="${esc(card.hook)}" oninput="upd('${card.id}','hook',this.value)"></div>
-        </div>
-      </div>`;
-
-    list.appendChild(div);
-    bindImageInput(div,card);
-  });
-}
-
-// ── 修复2：图片上传（不加 capture，iOS 自动弹"拍照/相册"菜单）─────────────
-function bindImageInput(container,card){
-  const zone=container.querySelector('.uz[data-type="image"]');
-  if(!zone)return;
-  const input=zone.querySelector('input[type=file]');
-  input.addEventListener('change',async e=>{
-    const file=e.target.files[0];if(!file)return;
-    const result=await compressImage(file,getQ(),600);
-    card.imageDataUrl=result.dataUrl;card.imageBlob=result.blob;
-    card.imageSizeKB=result.sizeKB;card.origSizeKB=result.origSizeKB;
-    renderList();
-  });
-  zone.addEventListener('dragover',e=>{e.preventDefault();});
-  zone.addEventListener('drop',async e=>{
-    e.preventDefault();
-    const file=e.dataTransfer.files[0];if(!file||!file.type.startsWith('image/'))return;
-    const result=await compressImage(file,getQ(),600);
-    card.imageDataUrl=result.dataUrl;card.imageBlob=result.blob;
-    card.imageSizeKB=result.sizeKB;card.origSizeKB=result.origSizeKB;
-    renderList();
-  });
-}
-
-// ── 修复3：直接录音 ────────────────────────────────────────────────────────
+// ── 录音 ──────────────────────────────────────────────
 async function toggleRec(cardId){
   const card=cards.find(c=>String(c.id)===String(cardId));
   const btn=document.getElementById('rb-'+cardId);
   const status=document.getElementById('rs-'+cardId);
-  const zone=document.getElementById('rz-'+cardId);
-  const preview=document.getElementById('rp-'+cardId);
+  const area=document.getElementById('ra-'+cardId);
 
-  // 正在录音中 → 停止
-  if(mediaRecorder&&mediaRecorder.state==='recording'&&mediaRecorder._cardId===cardId){
-    mediaRecorder.stop();
-    return;
+  // 停止当前录音
+  if(mediaRecorder&&mediaRecorder.state==='recording'){
+    if(mediaRecorder._id===cardId){mediaRecorder.stop();return;}
+    else mediaRecorder.stop();
   }
 
-  // 申请麦克风权限
   let stream;
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({audio:true});
-  }catch(e){
-    status.textContent='⚠ 无法访问麦克风，请检查权限';
-    return;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:true});}
+  catch{status.textContent='⚠ 请允许麦克风权限';return;}
+
+  const chunks=[];
+  let mimeType='audio/webm',ext='webm';
+  if(!MediaRecorder.isTypeSupported('audio/webm')){
+    if(MediaRecorder.isTypeSupported('audio/mp4')){mimeType='audio/mp4';ext='m4a';}
+    else{mimeType='';ext='webm';}
   }
+  mediaRecorder=new MediaRecorder(stream,mimeType?{mimeType}:{});
+  mediaRecorder._id=cardId;
 
-  recChunks=[];
-  mediaRecorder=new MediaRecorder(stream);
-  mediaRecorder._cardId=cardId;
-
-  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recChunks.push(e.data);};
+  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
   mediaRecorder.onstop=()=>{
     stream.getTracks().forEach(t=>t.stop());
-    const blob=new Blob(recChunks,{type:'audio/mp4'});
+    const blob=new Blob(chunks,{type:mimeType||'audio/webm'});
     const url=URL.createObjectURL(blob);
-    card.audioBlob=blob;
-    card.audioName='录音.m4a';
-    card.audioDataUrl=url;
-    btn.classList.remove('recording');
-    btn.innerHTML='🎙 重新录音';
-    zone.classList.add('ok');
-    status.textContent='✓ 录音完成（点播放试听）';
-    status.className='rec-status ok';
-    preview.style.display='block';
-    preview.innerHTML=`<audio controls src="${url}"></audio>`;
+    card.audioBlob=blob;card.audioName=`录音.${ext}`;card.audioExt=ext;card.audioDataUrl=url;
+    btn.classList.remove('recording');btn.textContent='🎙 重新录音';
+    area.className='rec-area ok';
+    status.textContent=`✓ 录音完成（${ext}）`;status.className='rec-status ok';
+    const player=document.getElementById('ra-'+cardId)?.querySelector('.rec-player');
+    if(player){player.style.display='block';player.innerHTML=`<audio controls src="${url}"></audio>`;}
   };
 
-  mediaRecorder.start();
-  btn.classList.add('recording');
-  btn.innerHTML='⏹ 停止录音';
-  status.textContent='🔴 录音中…点停止完成';
-  status.className='rec-status';
+  mediaRecorder.start(100);
+  btn.classList.add('recording');btn.textContent='⏹ 停止录音';
+  status.textContent='🔴 录音中… 说完点停止';status.className='rec-status';
 }
 
-// 上传音频文件
-async function handleAudioFile(e,cardId){
-  const file=e.target.files[0];if(!file)return;
-  const card=cards.find(c=>String(c.id)===String(cardId));
-  const url=URL.createObjectURL(file);
-  const buf=await file.arrayBuffer();
-  card.audioBlob=new Blob([buf],{type:file.type});
-  card.audioName=file.name;
-  card.audioDataUrl=url;
-  const zone=document.getElementById('rz-'+cardId);
-  const status=document.getElementById('rs-'+cardId);
-  const preview=document.getElementById('rp-'+cardId);
-  zone.classList.add('ok');
-  status.textContent='✓ '+file.name;
-  status.className='rec-status ok';
-  preview.style.display='block';
-  preview.innerHTML=`<audio controls src="${url}"></audio>`;
-}
+// ═══════════════════════════════════════════════════════
+// STEP 2：预览
+// ═══════════════════════════════════════════════════════
+function renderPreview(){
+  let ti=0,ts=0;
+  cards.forEach(c=>{if(c.imageSizeKB)ti+=c.imageSizeKB;if(c.audioBlob)ts+=Math.round(c.audioBlob.size/1024);});
+  document.getElementById('preview-meta').innerHTML=`
+    <div class="meta-item"><div class="meta-label">牌组名称</div><div class="meta-value">${esc(deckName)}</div></div>
+    <div class="meta-item"><div class="meta-label">卡片数量</div><div class="meta-value">${cards.length} 张</div></div>
+    <div class="meta-item"><div class="meta-label">图片总大小</div><div class="meta-value">${fmtKB(ti)}</div></div>
+    <div class="meta-item"><div class="meta-label">录音总大小</div><div class="meta-value">${fmtKB(ts)}</div></div>`;
 
-function toggleOpen(id){const el=document.getElementById('ci-'+id);if(el)el.classList.toggle('open');}
-function upd(id,field,val){const c=cards.find(c=>String(c.id)===String(id));if(c)c[field]=val;}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function trunc(s,n){return s.length>n?s.slice(0,n)+'…':s;}
-function fmtKB(kb){return kb>=1000?(kb/1024).toFixed(1)+'MB':kb+'KB';}
-
-// ── 检查预览 ────────────────────────────────────────────────────────────────
-function renderReview(){
-  const list=document.getElementById('rev-list');list.innerHTML='';
-  let hasErr=false,totalImgKB=0,totalSndKB=0;
+  const list=document.getElementById('preview-list');list.innerHTML='';
   cards.forEach(card=>{
-    const miss=[];
-    if(!card.name)miss.push('名称');
-    if(!card.imageDataUrl)miss.push('照片');
-    if(miss.length)hasErr=true;
-    if(card.imageSizeKB)totalImgKB+=card.imageSizeKB;
-    if(card.audioBlob)totalSndKB+=Math.round(card.audioBlob.size/1024);
     const thumb=card.imageDataUrl
-      ?`<img src="${card.imageDataUrl}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border);flex-shrink:0">`
-      :`<div style="width:60px;height:60px;background:var(--warm);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">?</div>`;
-    const sizeInfo=card.imageSizeKB?`<span style="font-size:11px;color:var(--green)">📷 ${fmtKB(card.origSizeKB)}→${fmtKB(card.imageSizeKB)}</span>`:`<span style="font-size:11px;color:var(--muted)">无照片</span>`;
-    const sndInfo=card.audioName?`<span style="font-size:11px;color:var(--green)">🔊 ${esc(trunc(card.audioName,14))}</span>`:`<span style="font-size:11px;color:var(--muted)">无录音（用TTS）</span>`;
-    const warn=miss.length?`<div style="color:var(--red);font-size:11px;margin-top:4px">⚠ 缺少：${miss.join('、')}</div>`:'';
-    const d=document.createElement('div');d.className='rev-item';
-    d.innerHTML=`${thumb}<div style="flex:1;min-width:0"><div style="font-size:17px;font-weight:700;font-family:'Noto Serif SC',serif;margin-bottom:4px">${esc(card.name)||'（未填名称）'}</div><div style="display:flex;flex-wrap:wrap;gap:8px">${sizeInfo}${sndInfo}</div>${card.sensory?`<div style="font-size:12px;color:var(--muted);margin-top:3px">${esc(card.sensory)}</div>`:''} ${warn}</div><div style="font-size:20px">${miss.length?'⚠':'✓'}</div>`;
+      ?`<div class="preview-thumb"><img src="${card.imageDataUrl}"></div>`
+      :`<div class="preview-thumb">🖼</div>`;
+    const sndTag=card.audioBlob
+      ?`<span class="ptag ok">🔊 有录音</span>`
+      :`<span class="ptag">无录音（TTS）</span>`;
+    const d=document.createElement('div');d.className='preview-item';
+    d.innerHTML=`${thumb}
+      <div class="preview-info">
+        <div class="preview-name">${esc(card.name)}</div>
+        <div class="preview-tags">
+          <span class="ptag ok">📷 ${card.imageSizeKB}KB</span>
+          ${sndTag}
+        </div>
+      </div>
+      <div class="preview-check">✓</div>`;
     list.appendChild(d);
   });
-  document.getElementById('size-bar').innerHTML=`<div class="size-tag">图片：<span>${fmtKB(totalImgKB)}</span></div><div class="size-tag">录音：<span>${fmtKB(totalSndKB)}</span></div><div class="size-tag">预计包大小：<span>${fmtKB(totalImgKB+totalSndKB+50)}</span></div>`;
-  const eb=document.getElementById('err-box');
-  if(hasErr){eb.textContent='部分卡片缺少名称或照片，请返回补充。';eb.classList.add('show');document.getElementById('gen-btn').classList.add('not-ready');}
-  else{eb.classList.remove('show');document.getElementById('gen-btn').classList.remove('not-ready');}
 }
 
-// ── 生成 .apkg ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// STEP 3：生成 & 下载
+// ═══════════════════════════════════════════════════════
 async function buildApkg(){
-  const btn=document.getElementById('gen-btn');
-  btn.textContent='生成中…';
+  const btn=document.getElementById('btn-gen');
+  btn.textContent='生成中…';btn.disabled=true;
   try{
     if(!window.SQL){
       await loadScript('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.min.js');
       window.SQL=await initSqlJs({locateFile:f=>'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'+f});
     }
-    if(!window.JSZip)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
-    apkgBlob=await generateApkg();
+    if(!window.JSZip) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    apkgBlob=await genApkg();
     let ti=0,ts=0;
     cards.forEach(c=>{if(c.imageSizeKB)ti+=c.imageSizeKB;if(c.audioBlob)ts+=Math.round(c.audioBlob.size/1024);});
-    document.getElementById('result-detail').innerHTML=`共 <strong>${cards.length}</strong> 张卡片 | 图片 <strong>${fmtKB(ti)}</strong> | 录音 <strong>${fmtKB(ts)}</strong><br>包大小约 <strong>${fmtKB(Math.round(apkgBlob.size/1024))}</strong>`;
-    goStep(2);
-  }catch(e){
-    const eb=document.getElementById('err-box');eb.textContent='生成失败：'+e.message;eb.classList.add('show');
-  }finally{btn.textContent='✦ 生成 .apkg';}
+    document.getElementById('result-detail').innerHTML=
+      `牌组：<strong>${esc(deckName)}</strong><br>共 <strong>${cards.length}</strong> 张卡片 ｜ 图片 <strong>${fmtKB(ti)}</strong> ｜ 录音 <strong>${fmtKB(ts)}</strong>`;
+    goStep(3);
+  }catch(err){
+    const eb=document.getElementById('preview-err');
+    eb.textContent='生成失败：'+err.message;eb.style.display='block';
+    console.error(err);
+  }finally{btn.textContent='✦ 生成 .apkg';btn.disabled=false;}
 }
 
 function downloadApkg(){
   if(!apkgBlob)return;
   const a=document.createElement('a');
   a.href=URL.createObjectURL(apkgBlob);
-  a.download='老人认知训练_自制.apkg';
+  a.download=deckName+'.apkg';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
-async function generateApkg(){
-  const MODEL_ID=1731234567910,DECK_ID=1731234567911;
+async function genApkg(){
+  const MODEL_ID=1731234567930,DECK_ID=1731234567931;
   const now=Math.floor(Date.now()/1000),SEP='\x1f';
   const mediaIndex={},mediaFiles=[];let mIdx=0;
+
   for(const card of cards){
     if(card.imageBlob){
-      const fname=`img_${mIdx}.jpg`;card._imgFname=fname;
+      const fname=`img_${mIdx}.jpg`;card._img=fname;
       mediaIndex[String(mIdx)]=fname;
       mediaFiles.push({idx:mIdx,buf:await card.imageBlob.arrayBuffer()});mIdx++;
-    }else card._imgFname=null;
+    }else card._img=null;
     if(card.audioBlob){
-      const ext=card.audioName&&card.audioName.includes('.')?card.audioName.split('.').pop():'m4a';
-      const fname=`snd_${mIdx}.${ext}`;card._sndFname=fname;
+      const fname=`snd_${mIdx}.${card.audioExt||'m4a'}`;card._snd=fname;
       mediaIndex[String(mIdx)]=fname;
       mediaFiles.push({idx:mIdx,buf:await card.audioBlob.arrayBuffer()});mIdx++;
-    }else card._sndFname=null;
+    }else card._snd=null;
   }
-  const css=`.card{font-family:'PingFang SC','Heiti SC','Microsoft YaHei',sans-serif;text-align:center;background:#FFF!important;color:#111!important;padding:0;margin:0}.night_mode .card{background:#FFF!important;color:#111!important}.img-wrap{width:85vw;height:85vw;max-width:500px;max-height:500px;margin:12px auto 0;display:flex;align-items:center;justify-content:center;background:#FFF;border-radius:20px;overflow:hidden}.img-wrap svg{width:100%;height:100%}.img-wrap img{width:100%;height:100%;object-fit:contain;border-radius:16px}.q-hint{font-size:20px;color:#CCC;letter-spacing:5px;margin:14px 0 20px}.divider{border:none;border-top:2px solid #EEE;margin:10px 24px 0}.ans-name{font-size:min(20vw,80px);font-weight:700;color:#111!important;letter-spacing:8px;margin:16px 0 24px;line-height:1.2}`;
+
+  const css=`.card{font-family:'PingFang SC','Heiti SC','Microsoft YaHei',sans-serif;text-align:center;background:#FFF!important;color:#111!important;padding:0;margin:0}.night_mode .card{background:#FFF!important;color:#111!important}.img-wrap{width:85vw;height:85vw;max-width:500px;max-height:500px;margin:12px auto 0;display:flex;align-items:center;justify-content:center;border-radius:20px;overflow:hidden}.img-wrap img{width:100%;height:100%;object-fit:contain}.q-hint{font-size:20px;color:#CCC;letter-spacing:5px;margin:14px 0 20px}.divider{border:none;border-top:2px solid #EEE;margin:10px 24px 0}.ans-name{font-size:min(20vw,80px);font-weight:700;color:#111!important;letter-spacing:8px;margin:16px 0 24px;line-height:1.2}`;
   const qfmt='<div class="img-wrap">{{Front}}</div><p class="q-hint">这 是 什 么 ？</p>';
-  const afmt='<div class="img-wrap">{{Front}}</div><hr class="divider">{{tts zh_CN:Name}}<p class="ans-name">{{Name}}</p>';
-  const modelObj={[MODEL_ID]:{id:MODEL_ID,name:'认知训练自制v2',type:0,mod:now,usn:-1,sortf:0,did:null,
+  const afmt='<div class="img-wrap">{{Front}}</div><hr class="divider">{{Audio}}<p class="ans-name">{{Name}}</p>';
+
+  const modelObj={[MODEL_ID]:{id:MODEL_ID,name:'认知训练v4',type:0,mod:now,usn:-1,sortf:0,did:null,
     tmpls:[{name:'卡片',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}],
     flds:[{name:'Front',ord:0,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
           {name:'Name',ord:1,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
-          {name:'Back',ord:2,sticky:false,rtl:false,font:'Arial',size:20,media:[]}],
+          {name:'Audio',ord:2,sticky:false,rtl:false,font:'Arial',size:20,media:[]}],
     css,latexPre:'',latexPost:'',tags:[],vers:[]}};
-  const deckObj={[DECK_ID]:{id:DECK_ID,name:'老人认知训练（自制）',desc:'',extendRev:50,usn:-1,
+  const deckObj={[DECK_ID]:{id:DECK_ID,name:deckName,desc:'',extendRev:50,usn:-1,
     collapsed:false,browserCollapsed:false,newToday:[0,0],revToday:[0,0],lrnToday:[0,0],timeToday:[0,0],dyn:0,conf:1,mod:now},
     '1':{id:1,name:'Default',conf:1,extendRev:50,usn:0,collapsed:false,browserCollapsed:false,
          newToday:[0,0],revToday:[0,0],lrnToday:[0,0],timeToday:[0,0],dyn:0,mod:now}};
-  const dconfObj={'1':{id:1,name:'Default',replayq:true,lapse:{leechFails:8,minInt:1,delays:[10],leechAction:0,mult:0},
-    rev:{perDay:100,fuzz:.05,ivlFct:1,maxIvl:36500,ease4:1.3,bury:true,minSpace:1},timer:0,maxTaken:60,usn:0,
-    new:{perDay:5,delays:[1,10],separate:true,ints:[1,4,7],initialFactor:2500,bury:true,order:1},mod:now,autoplay:true}};
-  const confObj={nextPos:1,estTimes:true,activeDecks:[1],sortType:'noteFld',timeLim:0,sortBackwards:false,
-    addToCur:true,curDeck:1,newBury:true,newSpread:0,dueCounts:true,curModel:String(MODEL_ID),collapseTime:1200};
+  const dconfObj={'1':{id:1,name:'Default',replayq:true,
+    lapse:{leechFails:8,minInt:1,delays:[10],leechAction:0,mult:0},
+    rev:{perDay:100,fuzz:.05,ivlFct:1,maxIvl:36500,ease4:1.3,bury:true,minSpace:1},
+    timer:0,maxTaken:60,usn:0,
+    new:{perDay:5,delays:[1,10],separate:true,ints:[1,4,7],initialFactor:2500,bury:true,order:1},
+    mod:now,autoplay:true}};
+  const confObj={nextPos:1,estTimes:true,activeDecks:[1],sortType:'noteFld',timeLim:0,
+    sortBackwards:false,addToCur:true,curDeck:1,newBury:true,newSpread:0,
+    dueCounts:true,curModel:String(MODEL_ID),collapseTime:1200};
+
   const db=new SQL.Database();
   db.run(`CREATE TABLE col(id integer primary key,crt integer not null,mod integer not null,scm integer not null,ver integer not null,dty integer not null,usn integer not null,ls integer not null,conf text not null,models text not null,decks text not null,dconf text not null,tags text not null)`);
   db.run(`CREATE TABLE notes(id integer primary key,guid text not null,mid integer not null,mod integer not null,usn integer not null,tags text not null,flds text not null,sfld text not null,csum integer not null,flags integer not null,data text not null)`);
   db.run(`CREATE TABLE cards(id integer primary key,nid integer not null,did integer not null,ord integer not null,mod integer not null,usn integer not null,type integer not null,queue integer not null,due integer not null,ivl integer not null,factor integer not null,reps integer not null,lapses integer not null,left integer not null,odue integer not null,odid integer not null,flags integer not null,data text not null)`);
   db.run(`CREATE TABLE revlog(id integer primary key,cid integer not null,usn integer not null,ease integer not null,ivl integer not null,lastIvl integer not null,factor integer not null,time integer not null,type integer not null)`);
   db.run(`CREATE TABLE graves(usn integer not null,oid integer not null,type integer not null)`);
-  db.run('INSERT INTO col VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',[1,now,now,now*1000,11,0,-1,0,JSON.stringify(confObj),JSON.stringify(modelObj),JSON.stringify(deckObj),JSON.stringify(dconfObj),'{}']);
-  const sha1=async s=>{const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s));return parseInt(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,8),16);};
+  db.run('INSERT INTO col VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',[1,now,now,now*1000,11,0,-1,0,
+    JSON.stringify(confObj),JSON.stringify(modelObj),JSON.stringify(deckObj),JSON.stringify(dconfObj),'{}']);
+
+  const sha1=async s=>{
+    const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s));
+    return parseInt(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,8),16);
+  };
   const rg=()=>Math.floor(Math.random()*0xFFFFFFFF).toString(16).padStart(8,'0');
+
   for(let i=0;i<cards.length;i++){
     const card=cards[i];
     const nid=now*1000+i,cid=now*1000+i+500;
-    const frontHtml=card._imgFname?`<img src="${card._imgFname}">`:`<div style="font-size:64px;padding:40px">🖼</div>`;
-    const audioTag=card._sndFname?`[sound:${card._sndFname}]`:'';
-    const rows=[card.sensory?`<span class="row"><span class="lbl">外观：</span>${card.sensory}</span>`:'',card.use?`<span class="row"><span class="lbl">用途：</span>${card.use}</span>`:'',card.context?`<span class="row"><span class="lbl">情境：</span>${card.context}</span>`:'',card.hook?`<span class="hook">记住它：${card.hook}</span>`:''].join('');
-    const flds=frontHtml+SEP+(card.name||'')+SEP+audioTag+rows;
+    const frontHtml=card._img?`<img src="${card._img}">`:`<div style="font-size:60px;padding:40px">🖼</div>`;
+    const audioField=card._snd?`[sound:${card._snd}]`:`{{tts zh_CN:Name}}`;
+    const flds=frontHtml+SEP+(card.name||'')+SEP+audioField;
     const csum=await sha1(frontHtml);
     db.run('INSERT INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,rg(),MODEL_ID,now,-1,'',flds,frontHtml,csum,0,'']);
     db.run('INSERT INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid,nid,DECK_ID,0,now,-1,0,0,i+1,0,0,0,0,0,0,0,0,'']);
   }
+
   const dbBytes=db.export();db.close();
   const zip=new JSZip();
   zip.file('collection.anki2',dbBytes);
@@ -535,25 +824,6 @@ async function generateApkg(){
   for(const{idx,buf}of mediaFiles)zip.file(String(idx),buf);
   return await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
 }
-
-function loadScript(src){
-  return new Promise((res,rej)=>{
-    if(document.querySelector(`script[src="${src}"]`)){res();return;}
-    const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);
-  });
-}
-
-function loadSample(){
-  if(cards.length>0&&!confirm('替换现有卡片？'))return;
-  cards=[];
-  [{name:'苹果',sensory:'圆圆的，红色，清香甜',use:'直接剥皮吃',context:'饭后吃一个',hook:'一天一苹果，医生远离我'},
-   {name:'水壶',sensory:'圆肚子，烧水冒热气',use:'烧开水喝',context:'早晨烧水泡茶',hook:'壶嘴冒热气说明水开了'},
-   {name:'眼镜',sensory:'两个圆圈镜片',use:'帮眼睛看清楚',context:'看书前要戴上',hook:'戴上眼镜世界清晰了'},
-  ].forEach((s,i)=>{const id=Date.now()+i;cards.push({...s,id,imageDataUrl:null,imageBlob:null,imageSizeKB:null,origSizeKB:null,audioBlob:null,audioName:null,audioDataUrl:null});});
-  renderList();setSt(0,'已载入3张示例');
-}
-
-renderList();
 </script>
 
 </body>
