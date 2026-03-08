@@ -133,6 +133,8 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .rec-box.ok{border-color:var(--green);background:var(--green-l)}
 .rec-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border:1.5px solid var(--accent);border-radius:8px;background:#fff;color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
 .rec-btn.go{background:var(--red);border-color:var(--red);color:#fff;animation:recpulse 1.5s infinite}
+.rec-del{margin-top:6px;display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid var(--red);border-radius:7px;background:#fff;color:var(--red);font-size:12px;font-weight:500;cursor:pointer;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;}
+.rec-del:active{opacity:.7;transform:scale(0.97);}
 @keyframes recpulse{0%{box-shadow:0 0 0 0 rgba(155,58,42,.45)}70%{box-shadow:0 0 0 12px rgba(155,58,42,0)}100%{box-shadow:0 0 0 0 rgba(155,58,42,0)}}
 .rec-st{font-size:12px;color:var(--muted);margin-top:7px}
 .rec-st.ok{color:var(--green);font-weight:500}
@@ -543,6 +545,16 @@ function saveEdit(){
   renderList();
 }
 
+function delAudio(cardId){
+  const card=cards.find(c=>String(c.id)===String(cardId));
+  if(!card) return;
+  card.audioBlob=null;card.audioName=null;card.audioDataUrl=null;card.audioExt='m4a';
+  if(activeRec&&activeRec.cardId===String(cardId)&&activeRec.mr.state==='recording'){
+    activeRec.mr.stop();
+  }
+  renderList();
+}
+
 function tryResolveErr(cardId){
   const card=cards.find(c=>String(c.id)===String(cardId));
   if(!card) return;
@@ -668,6 +680,7 @@ function buildEdit(card){
         <div class="rec-play" id="recpl-${card.id}" style="${hasAud?'display:block':''}">
           ${hasAud?`<audio controls src="${card.audioDataUrl}"></audio>`:''}
         </div>
+        ${hasAud?`<button class="rec-del" onclick="delAudio('${card.id}')">✕ 删除录音</button>`:''}
       </div>
     </div>
     <div class="edit-foot">
@@ -941,7 +954,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v24';
+const VERSION = 'v25';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
