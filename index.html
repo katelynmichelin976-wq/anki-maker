@@ -121,6 +121,8 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 /* 大预览：无图片时纯灰色方块+提示文字，无emoji */
 .img-big{width:84px;height:84px;border-radius:10px;border:1.5px solid var(--border);flex-shrink:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--warm)}
 .img-big img{width:100%;height:100%;object-fit:cover;display:block}
+.img-big.clickable{cursor:pointer;}
+.img-big.clickable:hover{border-color:var(--accent);background:var(--accent-bg);}
 .img-big-hint{font-size:10px;color:var(--muted);text-align:center;padding:0 6px;line-height:1.4}
 .img-right{display:flex;flex-direction:column;gap:6px;flex:1}
 .img-pick{padding:10px 14px;border:1.5px dashed var(--border);border-radius:8px;background:#fff;color:var(--accent);font-size:13px;font-weight:500;cursor:pointer;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;position:relative;overflow:hidden;text-align:center;transition:.15s}
@@ -645,7 +647,7 @@ function toggleEdit(id){
 function buildEdit(card){
   const hasImg=!!card.imageDataUrl;
   const hasAud=!!card.audioBlob;
-  const camSvg=`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`;
+  const camSvg=`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>`;
   return `
     <div class="es">
       <div class="elabel">卡片名称</div>
@@ -656,7 +658,7 @@ function buildEdit(card){
     <div class="es">
       <div class="elabel">图片展示</div>
       <div class="img-row">
-        <div class="img-big" id="ib-${card.id}">
+        <div class="img-big ${hasImg?'':'clickable'}" id="ib-${card.id}" ${hasImg?'':` onclick="document.querySelector('#ip-${card.id} input').click()"`}>
           ${hasImg?`<img src="${card.imageDataUrl}">`:camSvg}
         </div>
         <div class="img-right">
@@ -671,7 +673,7 @@ function buildEdit(card){
     <div class="es">
       <div class="elabel">语音提示</div>
       <div class="rec-box ${hasAud?'ok':''}" id="ra-${card.id}">
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;">
           <button class="rec-btn" id="recbtn-${card.id}" onclick="toggleRec('${card.id}')">
             ${hasAud?'🎙 重新录音':'🎙 开始录音'}
           </button>
@@ -956,7 +958,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v29';
+const VERSION = 'v30';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
