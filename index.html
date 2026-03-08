@@ -31,7 +31,7 @@ button:active:not(:disabled){transform:scale(0.96);opacity:.85;}
 body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
 
 /* ── 页头 ── */
-.app-header{background:var(--accent);color:#FAF7F2;padding:15px 20px;display:flex;align-items:center;gap:12px;justify-content:space-between;}
+.app-header{background:var(--accent);color:#FAF7F2;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}.hd-left{display:flex;align-items:center;gap:8px;}
 .app-header-title{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px}
 .app-header-sub{font-size:11px;opacity:.6;margin-top:2px}
 
@@ -214,6 +214,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 
 
 <div class="app-header">
+  <div class="hd-left">
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
     <!-- 星空 -->
     <circle class="star s1" cx="18" cy="6" r="1.2" fill="#FAF7F2"/>
@@ -233,6 +234,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
   <div>
     <div class="app-header-title">忆海拾光 <span id="ver-label" style="font-size:11px;font-weight:400;opacity:.6;margin-left:3px"></span></div>
     <div class="app-header-sub">制卡工具 · 拍照 · 录音 · 生成 Anki 牌组</div>
+  </div>
   </div>
   <button onclick="location.reload(true)" title="刷新获取最新版本" style="background:transparent;border:1.5px solid rgba(250,247,242,.4);color:#FAF7F2;border-radius:8px;width:34px;height:34px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">↻</button>
 </div>
@@ -264,7 +266,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
     <div class="mode-card" id="mc-imp" onclick="selMode('import')">
       <div class="mc-hd">
         <div class="mc-ico">📂</div>
-        <div><div class="mc-ttl">导入编辑</div><div class="mc-sub">从 .apkg 文件继续</div></div>
+        <div><div class="mc-ttl">导入牌组</div><div class="mc-sub">载入 .apkg 继续编辑</div></div>
       </div>
       <input type="file" id="apkg-input" accept=".apkg" style="display:none" onchange="doImport(event)">
       <div class="imp-st" id="imp-st" style="font-size:13px;color:var(--muted);margin-top:4px">点击此处选择 .apkg 文件</div>
@@ -289,7 +291,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
   <button class="add-btn" onclick="addCard()">＋ 添加卡片</button>
   <div id="p1-hint" style="display:none;text-align:center;font-size:12px;color:var(--red);padding:6px 0 2px;"></div>
   <div class="bot">
-    <button class="btn btn-s" onclick="goStep(0)">返回</button>
+    <button class="btn btn-s" onclick="tryReset()">返回</button>
     <button class="btn btn-p" id="btn-p1" onclick="goStep(2)" disabled>检查预览 →</button>
   </div>
 </div>
@@ -301,7 +303,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
   <div class="err" id="p2err"></div>
   <div class="bot">
     <button class="btn btn-s" onclick="goStep(1)">返回修改</button>
-    <button class="btn btn-g" id="btn-gen" onclick="doBuild()">✦ 生成 .apkg</button>
+    <button class="btn btn-g" id="btn-gen" onclick="doBuild()">✦ 生成牌组</button>
   </div>
 </div>
 
@@ -313,7 +315,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
     <div class="rdetail" id="rdetail"></div>
     <div class="rbtns">
       <button class="btn btn-g" onclick="dlApkg()">⬇ 下载 .apkg</button>
-      <button class="btn btn-s" onclick="goStep(0)">重新制作</button>
+      <button class="btn btn-s" onclick="tryReset()">重新制作</button>
     </div>
     <div class="howto">
       <b>iPhone 导入：</b>点下载 → 弹出菜单选"在 Anki 中打开"<br>
@@ -351,15 +353,22 @@ function snapCard(c){return JSON.parse(JSON.stringify({...c,imageBlob:null,audio
 // ═══════════════════════════════════════════
 // 步骤导航
 // ═══════════════════════════════════════════
-function goStep(n){
-  if(n===0){
-    cards=[];deckName='';mode=null;editingId=null;editSnap=null;
-    document.getElementById('dk-name').value='';
-    document.getElementById('imp-st').textContent='点击此处选择 .apkg 文件';
-    document.getElementById('mc-new').classList.remove('sel');
-    document.getElementById('mc-imp').classList.remove('sel');
-    chkP0();
+function tryReset(){
+  if(apkgBlob && !apkgDownloaded){
+    if(!confirm('牌组还未下载，确定要放弃吗？')) return;
   }
+  resetAll();
+  goStep(0);
+}
+function resetAll(){
+  cards=[];deckName='';mode=null;editingId=null;editSnap=null;apkgBlob=null;
+  document.getElementById('dk-name').value='';
+  document.getElementById('imp-st').textContent='点击此处选择 .apkg 文件';
+  document.getElementById('mc-new').classList.remove('sel');
+  document.getElementById('mc-imp').classList.remove('sel');
+  chkP0();
+}
+function goStep(n){
   if(n===1) renderList();
   if(n===2) renderPreview();
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
@@ -827,10 +836,12 @@ async function doBuild(){
   }catch(err){
     const eb=document.getElementById('p2err');eb.textContent='生成失败：'+err.message;eb.classList.add('show');
     console.error(err);
-  }finally{btn.textContent='✦ 生成 .apkg';btn.disabled=false;}
+  }finally{btn.textContent='✦ 生成牌组';btn.disabled=false;}
 }
 
+let apkgDownloaded=false;
 function dlApkg(){
+  apkgDownloaded=true;
   if(!apkgBlob)return;
   const a=document.createElement('a');
   a.href=URL.createObjectURL(apkgBlob);
@@ -861,7 +872,7 @@ async function genApkg(){
 
   const qfmt='<div class="iw">{{Front}}</div><p class="qh">这 是 什 么 ？</p>';
   // 修复TTS回退：有录音用录音，无录音用TTS
-  const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
+  const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}<p class="an">{{Name}}</p>';
 
   const mo={[MID]:{id:MID,name:'认知训练卡片',type:0,mod:now,usn:-1,sortf:0,did:null,
     tmpls:[{name:'卡片',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}],
@@ -926,7 +937,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v21';
+const VERSION = 'v22';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
