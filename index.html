@@ -887,11 +887,11 @@ async function genApkg(){
     }else c._snd=null;
   }
 
-  const css=`.card{font-family:'PingFang SC','Heiti SC','Microsoft YaHei',sans-serif;text-align:center;background:#FFF!important;color:#111!important;padding:0;margin:0}.night_mode .card{background:#FFF!important;color:#111!important}.iw{width:96%;margin:10px auto 0;position:relative;padding-top:96%;border-radius:16px;overflow:hidden;background:#F5F5F5}.iw img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}.qh{font-size:20px;color:#CCC;letter-spacing:5px;margin:12px 0 16px}.dv{border:none;border-top:2px solid #EEE;margin:8px 20px 0}.an{font-size:64px;font-weight:700;color:#111!important;letter-spacing:8px;margin:14px 0 20px;line-height:1.2}`;
+  const css=`.card{font-family:'PingFang SC','Heiti SC','Microsoft YaHei',sans-serif;text-align:center;background:#FFF!important;color:#111!important;padding:0;margin:0}.night_mode .card{background:#FFF!important;color:#111!important}.iw{width:96%;margin:10px auto 0;position:relative;padding-top:96%;border-radius:16px;overflow:hidden;background:#F5F5F5}.iw img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain}.qh{font-size:20px;color:#888;letter-spacing:5px;margin:12px 0 6px;font-weight:600}.dv{border:none;border-top:2px solid #EEE;margin:8px 20px 0}.showansbtn{display:inline-block;margin:8px auto 16px;padding:14px 36px;background:#7A5C3E;color:#FFF;font-size:18px;font-weight:600;border-radius:14px;letter-spacing:1px;}.an{font-size:64px;font-weight:700;color:#111!important;letter-spacing:8px;margin:14px 0 20px;line-height:1.2}`;
 
-  const qfmt='<div class="iw">{{Front}}</div><p class="qh">这 是 什 么 ？</p>';
+  const qfmt='<div class="iw">{{Front}}</div><p class="qh">这 是 什 么 ？</p><div class="showansbtn">👆 点击查看答案</div>';
   // 修复TTS回退：有录音用录音，无录音用TTS
-  const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
+  const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh-CN:Name}}{{^tts zh-CN:Name}}{{tts zh_CN:Name}}{{/tts zh-CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
 
   const mo={[MID]:{id:MID,name:'认知训练卡片',type:0,mod:now,usn:-1,sortf:0,did:null,
     tmpls:[{name:'卡片',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}],
@@ -958,7 +958,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v30';
+const VERSION = 'v31';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
