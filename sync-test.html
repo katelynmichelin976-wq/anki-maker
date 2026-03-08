@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>忆海拾光 · 同步验证 v10</title>
+<title>忆海拾光 · 同步验证 v11</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   :root {
@@ -108,6 +108,20 @@
   .log-item.sys .msg { color: var(--muted); }
   .latency { font-size: 12px; color: var(--muted); text-align: center; }
   .latency span { color: var(--success); font-weight: 600; }
+  .presence-bar {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; display: flex; align-items: center; gap: 8px;
+  }
+  .presence-bar .label { color: var(--muted); }
+  .presence-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border); flex-shrink: 0; transition: background .4s;
+  }
+  .presence-dot.online { background: var(--success); box-shadow: 0 0 6px var(--success); }
+  .presence-name { font-weight: 500; transition: color .4s; }
+  .presence-name.online { color: var(--success); }
+  .presence-name.offline { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -163,6 +177,12 @@
     <span id="statusText">正在连接...</span>
   </div>
 
+  <div class="presence-bar">
+    <span class="label">对方：</span>
+    <div class="presence-dot" id="presenceDot"></div>
+    <span class="presence-name offline" id="presenceName">未在线</span>
+  </div>
+
   <div class="card-display" id="cardDisplay">
     <div class="empty" id="emptyHint">等待题目...</div>
     <div class="deck" id="cardDeck" style="display:none"></div>
@@ -191,7 +211,7 @@
 
 <script>
 // ── 配置（只需改这里）────────────────────────────────
-const VERSION     = 'v10'
+const VERSION     = 'v11'
 const SUPABASE_URL = 'https://juzkonrzfyvchqxzmlpr.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1emtvbnJ6Znl2Y2hxeHptbHByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5NzM3MzEsImV4cCI6MjA4ODU0OTczMX0.8DDaZMhKlVkLD17ojz5kaXD0bZ-8qGhuo--cWAvtB3E'
 const TABLE       = 'sync_session'
@@ -286,7 +306,12 @@ async function ensureRow() {
 
 // ── 实时监听 ──────────────────────────────────────────
 function startWatch() {
-  channel = sb.channel('sync_channel')
+  const peerLabel = role === 'mom' ? '照护者' : '妈妈'
+
+  channel = sb.channel('sync_channel', {
+    config: { presence: { key: role } }
+  })
+    // 数据变化监听
     .on('postgres_changes', {
       event: 'UPDATE',
       schema: 'public',
@@ -295,9 +320,42 @@ function startWatch() {
     }, (payload) => {
       handleRemoteUpdate(payload.new)
     })
-    .subscribe((status) => {
-      if (status === 'SUBSCRIBED') addLog('sys', 'WebSocket 已就绪')
+    // Presence：对方上线
+    .on('presence', { event: 'join' }, ({ newPresences }) => {
+      const peer = role === 'mom' ? 'caregiver' : 'mom'
+      if (newPresences.some(p => p.role === peer)) {
+        setPresence(true, peerLabel)
+        addLog('sys', `${peerLabel}已上线 👋`)
+      }
     })
+    // Presence：对方下线
+    .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+      const peer = role === 'mom' ? 'caregiver' : 'mom'
+      if (leftPresences.some(p => p.role === peer)) {
+        setPresence(false, peerLabel)
+        addLog('sys', `${peerLabel}已离线`)
+      }
+    })
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        addLog('sys', 'WebSocket 已就绪')
+        // 广播自己的在线状态
+        await channel.track({ role })
+        // 检查对方是否已在线
+        const state = channel.presenceState()
+        const peer = role === 'mom' ? 'caregiver' : 'mom'
+        const peerOnline = Object.values(state).flat().some(p => p.role === peer)
+        setPresence(peerOnline, peerLabel)
+      }
+    })
+}
+
+function setPresence(online, name) {
+  const dot = document.getElementById('presenceDot')
+  const label = document.getElementById('presenceName')
+  dot.className = 'presence-dot ' + (online ? 'online' : '')
+  label.className = 'presence-name ' + (online ? 'online' : 'offline')
+  label.textContent = online ? name + ' 在线' : name + ' 未在线'
 }
 
 function handleRemoteUpdate(data) {
