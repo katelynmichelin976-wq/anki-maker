@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>忆海拾光 · 同步验证</title>
+<script src="https://unpkg.com/tcb-js-sdk@1.3.5/dist/tcb.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --mom: #f78166;
+    --caregiver: #79c0ff;
+    --warn: #ff7b72;
+    --success: #56d364;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  /* 顶部 logo 区 */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .header svg { display: block; margin: 0 auto 8px; }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* 角色选择 */
+  .role-pick {
+    width: 100%;
+    max-width: 360px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+  }
+  .role-pick h2 { font-size: 16px; margin-bottom: 20px; color: var(--muted); }
+  .role-btns { display: flex; gap: 12px; }
+  .role-btn {
+    flex: 1;
+    padding: 16px 8px;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .role-btn .icon { font-size: 28px; display: block; margin-bottom: 8px; }
+  .role-btn:hover { border-color: var(--muted); }
+  .role-btn.mom { border-color: var(--mom); color: var(--mom); }
+  .role-btn.caregiver { border-color: var(--caregiver); color: var(--caregiver); }
+
+  /* 主界面 */
+  .main {
+    width: 100%;
+    max-width: 420px;
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .main.visible { display: flex; }
+
+  /* 角色标签 */
+  .role-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .role-tag.mom { background: rgba(247,129,102,.15); color: var(--mom); border: 1px solid rgba(247,129,102,.3); }
+  .role-tag.caregiver { background: rgba(121,192,255,.15); color: var(--caregiver); border: 1px solid rgba(121,192,255,.3); }
+
+  /* 连接状态 */
+  .status-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background .3s;
+  }
+  .dot.connecting { background: #e3b341; animation: pulse 1s infinite; }
+  .dot.connected { background: var(--success); }
+  .dot.error { background: var(--warn); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  /* 当前题目展示卡 */
+  .card-display {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    text-align: center;
+    transition: border-color .4s, background .4s;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .card-display.struggling {
+    border-color: var(--warn);
+    background: rgba(255,123,114,.06);
+    animation: shake .4s ease;
+  }
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    25%{transform:translateX(-6px)}
+    75%{transform:translateX(6px)}
+  }
+  .card-display .deck {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .card-display .card-num {
+    font-size: 52px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  .card-display .card-name {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .card-display .struggling-label {
+    font-size: 13px;
+    color: var(--warn);
+    display: none;
+  }
+  .card-display.struggling .struggling-label { display: block; }
+  .card-display .empty {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  /* 妈妈端：卡片选择按钮 */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .card-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 8px;
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .15s;
+    text-align: center;
+  }
+  .card-btn .num { font-size: 20px; font-weight: 700; color: var(--mom); }
+  .card-btn .name { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .card-btn:hover { border-color: var(--mom); background: rgba(247,129,102,.06); }
+  .card-btn.active { border-color: var(--mom); background: rgba(247,129,102,.12); }
+
+  /* 卡住按钮 */
+  .struggle-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .struggle-btn:hover { border-color: var(--warn); color: var(--warn); background: rgba(255,123,114,.06); }
+  .struggle-btn.active { border-color: var(--warn); color: var(--warn); background: rgba(255,123,114,.1); }
+
+  /* 日志 */
+  .log {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .log-title {
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .log-list {
+    padding: 10px 14px;
+    font-size: 12px;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: var(--muted);
+    max-height: 120px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .log-item { display: flex; gap: 8px; }
+  .log-item .time { color: #30363d; flex-shrink: 0; }
+  .log-item.in .msg { color: var(--caregiver); }
+  .log-item.out .msg { color: var(--mom); }
+  .log-item.sys .msg { color: var(--muted); }
+
+  /* 延迟显示 */
+  .latency {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .latency span { color: var(--success); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- Logo -->
+<div class="header">
+  <svg width="48" height="32" viewBox="0 0 48 32" fill="none">
+    <!-- 星星 -->
+    <g>
+      <circle cx="8" cy="6" r="1.2" fill="#e6edf3" opacity="0.9">
+        <animate attributeName="opacity" values="0.9;0.2;0.9" dur="3.1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="20" cy="3" r="0.8" fill="#e6edf3" opacity="0.7">
+        <animate attributeName="opacity" values="0.7;0.1;0.7" dur="2.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="34" cy="5" r="1" fill="#e6edf3" opacity="0.8">
+        <animate attributeName="opacity" values="0.8;0.15;0.8" dur="3.8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="42" cy="2" r="0.7" fill="#e6edf3" opacity="0.6">
+        <animate attributeName="opacity" values="0.6;0.1;0.6" dur="2.7s" repeatCount="indefinite"/>
+      </circle>
+      <!-- 四芒星 -->
+      <path d="M26 8 L27 10 L29 11 L27 12 L26 14 L25 12 L23 11 L25 10 Z" fill="#e6edf3" opacity="0.95">
+        <animate attributeName="opacity" values="0.95;0.5;0.95" dur="4.2s" repeatCount="indefinite"/>
+      </path>
+    </g>
+    <!-- 海浪 -->
+    <path d="M0 22 Q6 18 12 22 Q18 26 24 22 Q30 18 36 22 Q42 26 48 22" stroke="#79c0ff" stroke-width="1.2" fill="none" opacity="0.6">
+      <animate attributeName="d" values="M0 22 Q6 18 12 22 Q18 26 24 22 Q30 18 36 22 Q42 26 48 22;M0 24 Q6 20 12 24 Q18 28 24 24 Q30 20 36 24 Q42 28 48 24;M0 22 Q6 18 12 22 Q18 26 24 22 Q30 18 36 22 Q42 26 48 22" dur="3s" repeatCount="indefinite"/>
+    </path>
+    <path d="M0 26 Q6 22 12 26 Q18 30 24 26 Q30 22 36 26 Q42 30 48 26" stroke="#79c0ff" stroke-width="0.8" fill="none" opacity="0.35">
+      <animate attributeName="d" values="M0 26 Q6 22 12 26 Q18 30 24 26 Q30 22 36 26 Q42 30 48 26;M0 28 Q6 24 12 28 Q18 32 24 28 Q30 24 36 28 Q42 32 48 28;M0 26 Q6 22 12 26 Q18 30 24 26 Q30 22 36 26 Q42 30 48 26" dur="2.2s" repeatCount="indefinite"/>
+    </path>
+  </svg>
+  <h1>忆海拾光</h1>
+  <p>实时同步验证</p>
+</div>
+
+<!-- 角色选择 -->
+<div class="role-pick" id="rolePick">
+  <h2>你是谁？</h2>
+  <div class="role-btns">
+    <button class="role-btn mom" onclick="selectRole('mom')">
+      <span class="icon">👵</span>
+      妈妈
+    </button>
+    <button class="role-btn caregiver" onclick="selectRole('caregiver')">
+      <span class="icon">👨</span>
+      照护者
+    </button>
+  </div>
+</div>
+
+<!-- 主界面 -->
+<div class="main" id="main">
+
+  <div style="display:flex; align-items:center; justify-content:space-between;">
+    <div class="role-tag" id="roleTag"></div>
+    <button onclick="switchRole()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;">切换角色</button>
+  </div>
+
+  <div class="status-bar">
+    <div class="dot connecting" id="dot"></div>
+    <span id="statusText">正在连接...</span>
+  </div>
+
+  <!-- 当前题目 -->
+  <div class="card-display" id="cardDisplay">
+    <div class="empty" id="emptyHint">等待题目...</div>
+    <div class="deck" id="cardDeck" style="display:none"></div>
+    <div class="card-num" id="cardNum" style="display:none"></div>
+    <div class="card-name" id="cardName" style="display:none"></div>
+    <div class="struggling-label">⚠️ 妈妈卡住了</div>
+  </div>
+
+  <!-- 妈妈端操作区 -->
+  <div id="momControls" style="display:none; flex-direction:column; gap:12px;">
+    <div style="font-size:12px; color:var(--muted); letter-spacing:.06em; text-transform:uppercase;">选择当前题目</div>
+    <div class="cards-grid" id="cardsGrid"></div>
+    <button class="struggle-btn" id="struggleBtn" onclick="toggleStruggle()">
+      😰 我卡住了
+    </button>
+  </div>
+
+  <!-- 延迟 -->
+  <div class="latency" id="latencyDiv" style="display:none">
+    同步延迟：<span id="latencyVal">-</span> ms
+  </div>
+
+  <!-- 日志 -->
+  <div class="log">
+    <div class="log-title">同步日志</div>
+    <div class="log-list" id="logList">
+      <div class="log-item sys"><span class="time">--:--:--</span><span class="msg">等待连接...</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── 配置 ──────────────────────────────────────────────
+const ENV_ID = 'yihai-dev-3go2jmd192b93c11'
+const COLLECTION = 'sync_session'
+const DOC_ID = 'current'
+
+// ── 示例卡片数据 ──────────────────────────────────────
+const CARDS = [
+  { id: 1, name: '苹果', deck: '水果' },
+  { id: 2, name: '香蕉', deck: '水果' },
+  { id: 3, name: '西瓜', deck: '水果' },
+  { id: 4, name: '猫咪', deck: '动物' },
+  { id: 5, name: '小狗', deck: '动物' },
+  { id: 6, name: '金鱼', deck: '动物' },
+]
+
+// ── 状态 ──────────────────────────────────────────────
+let role = null
+let db = null
+let watcher = null
+let currentCard = null
+let isStruggling = false
+let sendTime = null
+
+// ── 初始化 ────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  // URL 参数自动选角色
+  const params = new URLSearchParams(location.search)
+  const r = params.get('role')
+  if (r === 'mom' || r === 'caregiver') selectRole(r)
+})
+
+async function selectRole(r) {
+  role = r
+  document.getElementById('rolePick').style.display = 'none'
+  document.getElementById('main').classList.add('visible')
+
+  const tag = document.getElementById('roleTag')
+  tag.className = 'role-tag ' + role
+  tag.textContent = role === 'mom' ? '👵 妈妈端' : '👨 照护者端'
+
+  if (role === 'mom') {
+    document.getElementById('momControls').style.display = 'flex'
+    buildCardsGrid()
+  } else {
+    document.getElementById('latencyDiv').style.display = 'block'
+  }
+
+  await initCloudBase()
+}
+
+function switchRole() {
+  if (watcher) watcher.close()
+  role = null
+  db = null
+  watcher = null
+  currentCard = null
+  isStruggling = false
+  document.getElementById('main').classList.remove('visible')
+  document.getElementById('rolePick').style.display = 'block'
+  document.getElementById('momControls').style.display = 'none'
+  document.getElementById('latencyDiv').style.display = 'none'
+  resetCardDisplay()
+  document.getElementById('logList').innerHTML = '<div class="log-item sys"><span class="time">--:--:--</span><span class="msg">等待连接...</span></div>'
+}
+
+// ── CloudBase 初始化 ──────────────────────────────────
+async function initCloudBase() {
+  setStatus('connecting', '正在连接 CloudBase...')
+  try {
+    const app = tcb.init({ env: ENV_ID })
+    const auth = app.auth({ persistence: 'local' })
+
+    // 匿名登录
+    await auth.anonymousAuthProvider().signIn()
+    db = app.database()
+
+    setStatus('connected', '已连接')
+    addLog('sys', '匿名登录成功，开始监听...')
+
+    // 确保文档存在
+    await ensureDoc()
+
+    // 开始监听
+    startWatch()
+
+  } catch (e) {
+    setStatus('error', '连接失败：' + e.message)
+    addLog('sys', '错误：' + e.message)
+    console.error(e)
+  }
+}
+
+async function ensureDoc() {
+  try {
+    const res = await db.collection(COLLECTION).doc(DOC_ID).get()
+    if (!res.data || res.data.length === 0) {
+      await db.collection(COLLECTION).add({
+        _id: DOC_ID,
+        cardId: null,
+        cardName: null,
+        deckName: null,
+        isStruggling: false,
+        timestamp: db.serverDate()
+      })
+      addLog('sys', '初始化数据文档')
+    }
+  } catch(e) {
+    // 文档可能已存在
+  }
+}
+
+// ── 实时监听 ─────────────────────────────────────────
+function startWatch() {
+  watcher = db.collection(COLLECTION).doc(DOC_ID)
+    .watch({
+      onChange(snapshot) {
+        if (!snapshot.docs || snapshot.docs.length === 0) return
+        const data = snapshot.docs[0]
+        handleRemoteUpdate(data)
+      },
+      onError(e) {
+        setStatus('error', '监听断开')
+        addLog('sys', '监听错误：' + e.message)
+      }
+    })
+  addLog('sys', '实时监听已启动')
+}
+
+function handleRemoteUpdate(data) {
+  if (!data.cardId) return
+
+  // 计算延迟（照护者端）
+  if (role === 'caregiver' && data.timestamp) {
+    const ts = data.timestamp instanceof Date ? data.timestamp.getTime() : Date.now()
+    const latency = Date.now() - ts
+    if (latency > 0 && latency < 30000) {
+      document.getElementById('latencyVal').textContent = latency
+    }
+    addLog('in', `收到同步 · 第${data.cardId}题「${data.cardName}」${data.isStruggling ? ' ⚠️卡住了' : ''}`)
+  }
+
+  updateCardDisplay(data.cardId, data.cardName, data.deckName, data.isStruggling)
+
+  // 照护者端：妈妈卡住时震动
+  if (role === 'caregiver' && data.isStruggling && navigator.vibrate) {
+    navigator.vibrate([200, 100, 200])
+  }
+}
+
+// ── 妈妈端操作 ────────────────────────────────────────
+function buildCardsGrid() {
+  const grid = document.getElementById('cardsGrid')
+  grid.innerHTML = ''
+  CARDS.forEach(c => {
+    const btn = document.createElement('button')
+    btn.className = 'card-btn'
+    btn.id = 'card-btn-' + c.id
+    btn.innerHTML = `<div class="num">${c.id}</div><div class="name">${c.name}</div>`
+    btn.onclick = () => selectCard(c)
+    grid.appendChild(btn)
+  })
+}
+
+async function selectCard(card) {
+  if (!db) return
+  currentCard = card
+  isStruggling = false
+
+  // 更新按钮状态
+  document.querySelectorAll('.card-btn').forEach(b => b.classList.remove('active'))
+  document.getElementById('card-btn-' + card.id)?.classList.add('active')
+  document.getElementById('struggleBtn').classList.remove('active')
+
+  updateCardDisplay(card.id, card.name, card.deck, false)
+
+  sendTime = Date.now()
+  addLog('out', `发送 · 第${card.id}题「${card.name}」`)
+
+  try {
+    await db.collection(COLLECTION).doc(DOC_ID).update({
+      cardId: card.id,
+      cardName: card.name,
+      deckName: card.deck,
+      isStruggling: false,
+      timestamp: db.serverDate()
+    })
+  } catch(e) {
+    addLog('sys', '发送失败：' + e.message)
+  }
+}
+
+async function toggleStruggle() {
+  if (!currentCard || !db) return
+  isStruggling = !isStruggling
+
+  const btn = document.getElementById('struggleBtn')
+  btn.classList.toggle('active', isStruggling)
+  btn.textContent = isStruggling ? '✅ 已标记卡住' : '😰 我卡住了'
+
+  updateCardDisplay(currentCard.id, currentCard.name, currentCard.deck, isStruggling)
+  addLog('out', isStruggling ? '发送 · 卡住了！' : '发送 · 继续了')
+
+  try {
+    await db.collection(COLLECTION).doc(DOC_ID).update({
+      isStruggling,
+      timestamp: db.serverDate()
+    })
+  } catch(e) {
+    addLog('sys', '发送失败：' + e.message)
+  }
+}
+
+// ── UI 更新 ───────────────────────────────────────────
+function updateCardDisplay(cardId, cardName, deckName, struggling) {
+  const display = document.getElementById('cardDisplay')
+  document.getElementById('emptyHint').style.display = 'none'
+  document.getElementById('cardDeck').style.display = 'block'
+  document.getElementById('cardNum').style.display = 'block'
+  document.getElementById('cardName').style.display = 'block'
+
+  document.getElementById('cardDeck').textContent = deckName
+  document.getElementById('cardNum').textContent = String(cardId).padStart(2, '0')
+  document.getElementById('cardNum').style.color = struggling ? 'var(--warn)' : 'var(--mom)'
+  document.getElementById('cardName').textContent = cardName
+
+  display.classList.toggle('struggling', struggling)
+}
+
+function resetCardDisplay() {
+  document.getElementById('emptyHint').style.display = 'block'
+  document.getElementById('cardDeck').style.display = 'none'
+  document.getElementById('cardNum').style.display = 'none'
+  document.getElementById('cardName').style.display = 'none'
+  document.getElementById('cardDisplay').classList.remove('struggling')
+}
+
+function setStatus(state, text) {
+  const dot = document.getElementById('dot')
+  dot.className = 'dot ' + state
+  document.getElementById('statusText').textContent = text
+}
+
+function addLog(type, msg) {
+  const list = document.getElementById('logList')
+  const now = new Date()
+  const time = now.toTimeString().slice(0, 8)
+  const item = document.createElement('div')
+  item.className = 'log-item ' + type
+  item.innerHTML = `<span class="time">${time}</span><span class="msg">${msg}</span>`
+  list.appendChild(item)
+  list.scrollTop = list.scrollHeight
+
+  // 只保留最近20条
+  while (list.children.length > 20) list.removeChild(list.firstChild)
+}
+</script>
+</body>
+</html>
