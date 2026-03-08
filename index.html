@@ -2,8 +2,14 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="忆海拾光">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#7A5C3E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>认知训练卡片制作 v12</title>
+<title>忆海拾光 · 制卡工具</title>
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -82,7 +88,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .ci.editing{border-color:var(--accent);box-shadow:var(--sh2)}
 
 /* ── 折叠行 ── */
-.crow{display:grid;grid-template-columns:26px 1fr 48px 48px 48px;gap:6px;align-items:center;padding:11px 12px;min-height:56px}
+.crow{display:grid;grid-template-columns:26px 1fr 48px 48px 48px;gap:6px;align-items:center;padding:11px 12px;min-height:56px;}
 .cidx{width:24px;height:24px;border-radius:50%;background:var(--warm);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}
 .ci.editing .cidx{background:var(--accent);border-color:var(--accent);color:#fff}
 .ci.editing .cthumb{display:none;}
@@ -149,7 +155,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .btn-p:disabled{background:#C8C0B5;cursor:not-allowed}
 .btn-g{background:var(--green);color:#fff;flex:1;justify-content:center;}
 .btn-g:disabled{background:#C8C0B5;cursor:not-allowed}
-.btn-s{background:#fff;color:var(--text);border:1.5px solid var(--border);flex:1;justify-content:center;}
+.btn-s{background:#fff;color:var(--text);border:1.5px solid var(--border);padding:11px 20px;}
 
 /* ════════════════════════════
    STEP 2：预览
@@ -181,15 +187,50 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 
 .err{background:var(--red-l);border:1px solid #e0a090;border-radius:8px;padding:10px 13px;font-size:13px;color:var(--red);display:none;margin-top:10px}
 .err.show{display:block}
+
+@keyframes twinkle{
+  0%,100%{opacity:.9;}
+  50%{opacity:.15;}
+}
+.star{opacity:.9;}
+.s1{animation:twinkle 2.8s ease-in-out infinite;}
+.s2{animation:twinkle 3.5s ease-in-out infinite .6s;}
+.s3{animation:twinkle 2.2s ease-in-out infinite 1.1s;}
+.s4{animation:twinkle 4.0s ease-in-out infinite .3s;}
+.s5{animation:twinkle 3.1s ease-in-out infinite 1.8s;}
+.s6{animation:twinkle 2.5s ease-in-out infinite .9s;}
+.s7{animation:twinkle 3.8s ease-in-out infinite .2s;}
+.s8{animation:twinkle 2.9s ease-in-out infinite 1.4s;}
+.s9{animation:twinkle 4.2s ease-in-out infinite .5s;}
+
+@keyframes riseA1{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+@keyframes riseA2{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+.waveA1{animation:riseA1 2.8s ease-in-out infinite;transform-origin:center;}
+.waveA2{animation:riseA2 2.8s ease-in-out infinite .5s;transform-origin:center;}
 </style>
 </head>
 <body>
 
 <div class="app-header">
-  <div style="font-size:22px">🃏</div>
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- 星空 -->
+    <circle class="star s1" cx="18" cy="6" r="1.2" fill="#FAF7F2"/>
+    <circle class="star s2" cx="9" cy="9" r="0.9" fill="#FAF7F2"/>
+    <circle class="star s3" cx="27" cy="8" r="1.0" fill="#FAF7F2"/>
+    <circle class="star s4" cx="5"  cy="5" r="0.6" fill="#FAF7F2"/>
+    <circle class="star s5" cx="31" cy="5" r="0.7" fill="#FAF7F2"/>
+    <circle class="star s6" cx="14" cy="3" r="0.5" fill="#FAF7F2"/>
+    <circle class="star s7" cx="24" cy="13" r="0.7" fill="#FAF7F2"/>
+    <circle class="star s8" cx="7"  cy="15" r="0.5" fill="#FAF7F2"/>
+    <!-- 四芒星（最亮的一颗）-->
+    <path class="star s9" d="M18 2 L18.5 5.5 L22 6 L18.5 6.5 L18 10 L17.5 6.5 L14 6 L17.5 5.5 Z" fill="#FAF7F2"/>
+    <!-- 海浪 -->
+    <path class="waveA1" d="M3 24 Q7 19 11 24 Q15 29 19 24 Q23 19 27 24 Q31 29 33 24" stroke="#FAF7F2" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.85"/>
+    <path class="waveA2" d="M3 28 Q7 23 11 28 Q15 33 19 28 Q23 23 27 28 Q31 33 33 28" stroke="#FAF7F2" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45"/>
+  </svg>
   <div>
-    <div class="app-header-title">认知训练卡片制作</div>
-    <div class="app-header-sub">拍照 · 录音 · 生成 Anki 牌组</div>
+    <div class="app-header-title">忆海拾光</div>
+    <div class="app-header-sub">制卡工具 · 拍照 · 录音 · 生成 Anki 牌组</div>
   </div>
 </div>
 
@@ -243,6 +284,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
   </div>
   <div id="card-list"></div>
   <button class="add-btn" onclick="addCard()">＋ 添加卡片</button>
+  <div id="p1-hint" style="display:none;text-align:center;font-size:12px;color:var(--red);padding:6px 0 2px;"></div>
   <div class="bot">
     <button class="btn btn-s" onclick="goStep(0)">返回</button>
     <button class="btn btn-p" id="btn-p1" onclick="goStep(2)" disabled>检查预览 →</button>
@@ -449,13 +491,78 @@ function cancelEdit(){
 }
 
 function saveEdit(){
+  const card=cards.find(c=>String(c.id)===String(editingId));
+  if(!card) return;
+
+  // 校验名称
+  const nameEl=document.querySelector('#ci-'+editingId+' .ename');
+  if(!card.name.trim()){
+    if(nameEl){
+      nameEl.style.borderColor='var(--red)';
+      nameEl.placeholder='请填写卡片名称';
+      nameEl.focus();
+    }
+    showEditErr(editingId,'请填写卡片名称');
+    return;
+  }
+
+  // 校验图片
+  if(!card.imageBlob){
+    const ipEl=document.getElementById('ip-'+editingId);
+    if(ipEl) ipEl.style.borderColor='var(--red)';
+    showEditErr(editingId,'请上传图片后再保存');
+    return;
+  }
+
+  // 通过：清除错误状态，保存
+  clearEditErr(editingId);
   editingId=null;editSnap=null;
   renderList();
 }
 
+function tryResolveErr(cardId){
+  const card=cards.find(c=>String(c.id)===String(cardId));
+  if(!card) return;
+  if(card.name.trim()&&card.imageBlob){
+    clearEditErr(cardId);
+  }
+}
+
+function showEditErr(cardId,msg){
+  let el=document.getElementById('edit-err-'+cardId);
+  if(!el){
+    el=document.createElement('div');
+    el.id='edit-err-'+cardId;
+    el.style.cssText='color:var(--red);font-size:12px;padding:4px 0 8px;font-weight:500;';
+    const foot=document.querySelector('#ci-'+cardId+' .edit-foot');
+    if(foot) foot.parentNode.insertBefore(el,foot);
+  }
+  el.textContent='⚠ '+msg;
+}
+
+function clearEditErr(cardId){
+  const el=document.getElementById('edit-err-'+cardId);
+  if(el) el.remove();
+  const nameEl=document.querySelector('#ci-'+cardId+' .ename');
+  if(nameEl) nameEl.style.borderColor='';
+  const ipEl=document.getElementById('ip-'+cardId);
+  if(ipEl) ipEl.style.borderColor='';
+}
+
 function chkP1(){
-  const ok=cards.length>0&&cards.every(c=>c.name.trim()&&c.imageBlob);
+  const incomplete=cards.filter(c=>!c.name.trim()||!c.imageBlob);
+  const ok=cards.length>0&&incomplete.length===0;
   document.getElementById('btn-p1').disabled=!ok;
+  const hint=document.getElementById('p1-hint');
+  if(hint){
+    if(!ok&&cards.length>0){
+      const n=incomplete.length;
+      hint.textContent=`还有 ${n} 张卡片未填写名称或上传图片`;
+      hint.style.display='block';
+    } else {
+      hint.style.display='none';
+    }
+  }
 }
 
 // ── 渲染列表 ──────────────────────────────
@@ -509,7 +616,7 @@ function buildEdit(card){
       <div class="elabel">卡片名称</div>
       <input class="ename" type="text" placeholder="例：苹果、我的水杯"
         value="${esc(card.name)}"
-        oninput="updField('${card.id}','name',this.value)">
+        oninput="updField('${card.id}','name',this.value);this.style.borderColor='';tryResolveErr('${card.id}')">
     </div>
     <div class="es">
       <div class="elabel">图片展示</div>
@@ -565,12 +672,13 @@ async function handleImg(e,cardId){
   const ib=document.getElementById('ib-'+cardId);
   if(ib) ib.innerHTML=`<img src="${r.dataUrl}">`;
   const ip=document.getElementById('ip-'+cardId);
-  if(ip){ip.className='img-pick ok';ip.childNodes[0].textContent='重新拍照 / 选图';}
+  if(ip){ip.className='img-pick ok';ip.style.borderColor='';ip.childNodes[0].textContent='重新拍照 / 选图';}
   const isz=document.getElementById('isz-'+cardId);
   if(isz) isz.textContent=`已压缩 ${r.sizeKB}KB（原 ${r.origKB}KB）`;
   // 更新折叠行缩略图
   const ct=document.querySelector(`#ci-${cardId} .cthumb`);
   if(ct){ct.className='cthumb';ct.innerHTML=`<img src="${r.dataUrl}">`;}
+  tryResolveErr(cardId);
   chkP1();
 }
 
@@ -720,7 +828,7 @@ function dlApkg(){
 }
 
 async function genApkg(){
-  const MID=1731234567940,DID=1731234567941;
+  const MID=1948020901972,DID=1731234567941;
   const now=Math.floor(Date.now()/1000),SEP='\x1f';
   const midx={},mfiles=[];let mi=0;
   for(const c of cards){
@@ -740,7 +848,7 @@ async function genApkg(){
   // 修复TTS回退：有录音用录音，无录音用TTS
   const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
 
-  const mo={[MID]:{id:MID,name:'认知训练v6',type:0,mod:now,usn:-1,sortf:0,did:null,
+  const mo={[MID]:{id:MID,name:'认知训练卡片',type:0,mod:now,usn:-1,sortf:0,did:null,
     tmpls:[{name:'卡片',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}],
     flds:[{name:'Front',ord:0,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
           {name:'Name', ord:1,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
@@ -775,12 +883,16 @@ async function genApkg(){
 
   for(let i=0;i<cards.length;i++){
     const c=cards[i];
-    const nid=now*1000+i,cid=now*1000+i+500;
+    // 基于「牌组名+卡片名」生成稳定ID，支持增量导入
+    const noteKey=deckName+'::'+c.name;
+    const nid=await sha1(noteKey);
+    const cid=nid+500;
+    const guidStr=btoa(unescape(encodeURIComponent(noteKey))).slice(0,10);
     const front=c._img?`<img src="${c._img}">`:'';
     const audio=c._snd?`[sound:${c._snd}]`:'';
     const flds=front+SEP+c.name+SEP+audio;
     const cs=await sha1(front||c.name);
-    db.run('INSERT INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,rg(),MID,now,-1,'',flds,front||c.name,cs,0,'']);
+    db.run('INSERT INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,guidStr,MID,now,-1,'',flds,front||c.name,cs,0,'']);
     db.run('INSERT INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid,nid,DID,0,now,-1,0,0,i+1,0,0,0,0,0,0,0,0,'']);
   }
 
@@ -790,6 +902,30 @@ async function genApkg(){
   zip.file('media',JSON.stringify(midx));
   for(const{i,buf}of mfiles)zip.file(String(i),buf);
   return await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+}
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  // 内联 Service Worker 用 blob URL
+  const swCode=`
+const CACHE='yihai-v1';
+const URLS=['/anki-maker/','/anki-maker/index.html'];
+self.addEventListener('install',e=>{
+  e.waitUntil(caches.open(CACHE).then(c=>c.addAll(URLS)));
+  self.skipWaiting();
+});
+self.addEventListener('activate',e=>{
+  e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch',e=>{
+  e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
+});
+  `;
+  const blob=new Blob([swCode],{type:'application/javascript'});
+  const url=URL.createObjectURL(blob);
+  navigator.serviceWorker.register(url).catch(()=>{});
 }
 </script>
 </body>
