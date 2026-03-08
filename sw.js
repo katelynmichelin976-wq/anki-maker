@@ -1,4 +1,4 @@
-const CACHE = 'yihai-v20';
+const CACHE = 'yihai-v21';
 
 // 这些资源才缓存（静态资源）
 const STATIC = [
