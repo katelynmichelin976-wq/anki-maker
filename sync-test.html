@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>忆海拾光 · 同步验证 v7</title>
+<title>忆海拾光 · 同步验证 v8</title>
 <!-- CloudBase JS SDK v2 全量包，腾讯官方 CDN -->
 <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.15.1/cloudbase.full.js"></script>
 
@@ -361,7 +361,7 @@
 const ENV_ID = 'yihai-dev-3go2jmd192b93c11'
 const COLLECTION = 'sync_session'
 const DOC_ID = 'current'
-const VERSION = 'v7'
+const VERSION = 'v8'
 
 // ── 示例卡片数据 ──────────────────────────────────────
 const CARDS = [
@@ -431,10 +431,9 @@ async function initCloudBase() {
   setStatus('connecting', '正在连接 CloudBase...')
   try {
     const app = cloudbase.init({ env: ENV_ID })
-    const auth = app.auth({ persistence: 'local' })
 
-    // 匿名登录
-    await auth.anonymousAuthProvider().signIn()
+    // 匿名登录（v2 正确写法：直接链式调用）
+    await app.auth().anonymousAuthProvider().signIn()
     db = app.database()
 
     setStatus('connected', '已连接')
