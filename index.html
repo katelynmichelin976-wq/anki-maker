@@ -909,7 +909,10 @@ async function genApkg(){
     const noteKey=deckName+'::'+c.name;
     const nid=await sha1(noteKey);
     const cid=(nid*10+i)%9007199254740991;
-    const guidStr=btoa(unescape(encodeURIComponent(noteKey))).slice(0,10);
+    // guid 基于 nid 转62进制，保证唯一且稳定
+    const _chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let _n=nid,guidStr='';
+    for(let _i=0;_i<10;_i++){guidStr=_chars[_n%62]+guidStr;_n=Math.floor(_n/62);}
     const front=c._img?`<img src="${c._img}">`:'';
     const audio=c._snd?`[sound:${c._snd}]`:'';
     const flds=front+SEP+c.name+SEP+audio;
