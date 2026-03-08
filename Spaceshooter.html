@@ -280,8 +280,8 @@
             <div class="subtitle">SPACE THUNDER</div>
             <button onclick="startGame()">开始游戏</button>
             <div class="instructions">
-                <div><span class="key">←</span> <span class="key">→</span> 左右移动</div>
-                <div><span class="key">↑</span> <span class="key">↓</span> 上下移动</div>
+                <div><span class="key">← →</span> 或 <span class="key">A D</span> 左右移动</div>
+                <div><span class="key">↑ ↓</span> 或 <span class="key">W S</span> 上下移动</div>
                 <div><span class="key">自动射击</span> 无需按键</div>
                 <div><span class="key">P</span> 暂停游戏</div>
             </div>
@@ -515,17 +515,17 @@
             }
 
             update() {
-                // 移动控制
-                if (keys['ArrowLeft'] && player.x > player.width / 2) {
+                // 移动控制 - 支持方向键和WASD
+                if ((keys['ArrowLeft'] || keys['a'] || keys['A']) && player.x > player.width / 2) {
                     player.x -= player.speed;
                 }
-                if (keys['ArrowRight'] && player.x < CANVAS_WIDTH - player.width / 2) {
+                if ((keys['ArrowRight'] || keys['d'] || keys['D']) && player.x < CANVAS_WIDTH - player.width / 2) {
                     player.x += player.speed;
                 }
-                if (keys['ArrowUp'] && player.y > player.height / 2) {
+                if ((keys['ArrowUp'] || keys['w'] || keys['W']) && player.y > player.height / 2) {
                     player.y -= player.speed;
                 }
-                if (keys['ArrowDown'] && player.y < CANVAS_HEIGHT - player.height / 2) {
+                if ((keys['ArrowDown'] || keys['s'] || keys['S']) && player.y < CANVAS_HEIGHT - player.height / 2) {
                     player.y += player.speed;
                 }
 
