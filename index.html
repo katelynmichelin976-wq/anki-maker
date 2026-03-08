@@ -891,7 +891,7 @@ async function genApkg(){
 
   const qfmt='<div class="iw">{{Front}}</div><p class="qh">这 是 什 么 ？</p><div class="showansbtn">👆 点击查看答案</div>';
   // 修复TTS回退：有录音用录音，无录音用TTS
-  const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh-CN:Name}}{{^tts zh-CN:Name}}{{tts zh_CN:Name}}{{/tts zh-CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
+  const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
 
   const mo={[MID]:{id:MID,name:'认知训练卡片',type:0,mod:now,usn:-1,sortf:0,did:null,
     tmpls:[{name:'卡片',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}],
@@ -958,7 +958,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v31';
+const VERSION = 'v32';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
