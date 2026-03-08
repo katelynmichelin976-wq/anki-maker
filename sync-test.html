@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>忆海拾光 · 同步验证</title>
-<script src="https://unpkg.com/tcb-js-sdk@1.3.5/dist/tcb.js"></script>
+<script src="https://cdn-go.cn/cloudbase/cloudbase-js-sdk/1.3.5/cloudbase.full.js"></script>
 <style>
   :root {
     --bg: #0d1117;
@@ -424,7 +424,7 @@ function switchRole() {
 async function initCloudBase() {
   setStatus('connecting', '正在连接 CloudBase...')
   try {
-    const app = tcb.init({ env: ENV_ID })
+    const app = cloudbase.init({ env: ENV_ID })
     const auth = app.auth({ persistence: 'local' })
 
     // 匿名登录
