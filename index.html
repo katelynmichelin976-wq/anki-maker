@@ -428,12 +428,10 @@ async function doImport(e){
     const imported=[];
     for(const row of nr[0]?.values||[]){
       const flds=row[0].split(SEP);
-      const rawName=(flds[1]||'').trim();
-      if(!rawName)continue;
-      // 解析序号前缀 "0001::名称" → seq=1, name="名称"
-      const seqMatch=rawName.match(/^(\d+)::(.*)/);
-      const seq=seqMatch?parseInt(seqMatch[1]):9999;
-      const name=seqMatch?seqMatch[2]:rawName;
+      const name=(flds[1]||'').trim();
+      if(!name)continue;
+      // 序号在 flds[3]
+      const seq=flds[3]?parseInt(flds[3]):9999;
       const card={id:Date.now()*1000+Math.floor(Math.random()*999),name,_seq:seq,
         imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
         audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'};
@@ -882,7 +880,8 @@ async function genApkg(){
     tmpls:[{name:'卡片',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}],
     flds:[{name:'Front',ord:0,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
           {name:'Name', ord:1,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
-          {name:'Audio',ord:2,sticky:false,rtl:false,font:'Arial',size:20,media:[]}],
+          {name:'Audio',ord:2,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
+          {name:'Seq',  ord:3,sticky:false,rtl:false,font:'Arial',size:20,media:[]}],
     css,latexPre:'',latexPost:'',tags:[],vers:[]}};
   const do_={[DID]:{id:DID,name:deckName,desc:'',extendRev:50,usn:-1,
     collapsed:false,browserCollapsed:false,newToday:[0,0],revToday:[0,0],lrnToday:[0,0],timeToday:[0,0],dyn:0,conf:1,mod:now},
@@ -922,7 +921,7 @@ async function genApkg(){
     const front=c._img?`<img src="${c._img}">`:'';
     const audio=c._snd?`[sound:${c._snd}]`:'';
     const seq=String(i+1).padStart(4,'0');
-    const flds=front+SEP+seq+'::'+c.name+SEP+audio;
+    const flds=front+SEP+c.name+SEP+audio+SEP+seq;
     const cs=await sha1(front||c.name);
     db.run('INSERT OR REPLACE INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,guidStr,MID,now,-1,'',flds,front||c.name,cs,0,'']);
     db.run('INSERT OR REPLACE INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid,nid,DID,0,now,-1,0,0,i+1,0,0,0,0,0,0,0,0,'']);
@@ -942,7 +941,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v23';
+const VERSION = 'v24';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
