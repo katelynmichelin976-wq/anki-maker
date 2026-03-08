@@ -1,4 +1,4 @@
-const CACHE = 'yihai-v19';
+const CACHE = 'yihai-v20';
 const URLS = [
   '/anki-maker/',
   '/anki-maker/index.html',
