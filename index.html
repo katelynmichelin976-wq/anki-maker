@@ -31,7 +31,7 @@ button:active:not(:disabled){transform:scale(0.96);opacity:.85;}
 body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
 
 /* ── 页头 ── */
-.app-header{background:var(--accent);color:#FAF7F2;padding:15px 20px;display:flex;align-items:center;gap:12px}
+.app-header{background:var(--accent);color:#FAF7F2;padding:15px 20px;display:flex;align-items:center;gap:12px;justify-content:space-between;}
 .app-header-title{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px}
 .app-header-sub{font-size:11px;opacity:.6;margin-top:2px}
 
@@ -212,16 +212,6 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 <body>
 
 
-<div id="update-banner" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
-  background:#2C2416;color:#FAF7F2;border-radius:12px;padding:12px 20px;
-  align-items:center;gap:14px;z-index:999;box-shadow:0 4px 20px rgba(0,0,0,.3);
-  font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
-  font-size:14px;white-space:nowrap;">
-  <span>✦ 发现新版本</span>
-  <button onclick="doUpdate()" style="background:#7A5C3E;color:#FAF7F2;border:none;
-    border-radius:8px;padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;
-    font-family:inherit;">立即更新</button>
-</div>
 
 <div class="app-header">
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -241,9 +231,10 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
     <path class="waveA2" d="M3 28 Q7 23 11 28 Q15 33 19 28 Q23 23 27 28 Q31 33 33 28" stroke="#FAF7F2" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.45"/>
   </svg>
   <div>
-    <div class="app-header-title">忆海拾光</div>
-    <div class="app-header-sub">制卡工具 · 拍照 · 录音 · 生成 Anki 牌组 <span style="opacity:.5;font-size:10px;margin-left:4px">v20</span></div>
+    <div class="app-header-title">忆海拾光 <span id="ver-label" style="font-size:11px;font-weight:400;opacity:.6;margin-left:3px"></span></div>
+    <div class="app-header-sub">制卡工具 · 拍照 · 录音 · 生成 Anki 牌组</div>
   </div>
+  <button onclick="location.reload(true)" title="刷新获取最新版本" style="background:transparent;border:1.5px solid rgba(250,247,242,.4);color:#FAF7F2;border-radius:8px;width:34px;height:34px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">↻</button>
 </div>
 
 <div class="steps">
@@ -932,41 +923,16 @@ async function genApkg(){
 
 
 
+
+
 <script>
-const APP_VERSION = 'v21';
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/anki-maker/sw.js').then(reg => {
-    // 检测到新 SW 安装完成，提示用户更新
-    reg.addEventListener('updatefound', () => {
-      const newSW = reg.installing;
-      newSW.addEventListener('statechange', () => {
-        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-          showUpdateBanner();
-        }
-      });
-    });
-  }).catch(err => console.log('SW 注册失败:', err));
-
-  // 页面被新 SW 控制后自动刷新
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) { refreshing = true; location.reload(); }
-  });
-}
-
-function showUpdateBanner() {
-  const banner = document.getElementById('update-banner');
-  if (banner) banner.style.display = 'flex';
-}
-
-function doUpdate() {
-  navigator.serviceWorker.getRegistration().then(reg => {
-    if (reg && reg.waiting) {
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-  });
-  document.getElementById('update-banner').style.display = 'none';
+const VERSION = 'v21';
+document.addEventListener('DOMContentLoaded',()=>{
+  const el=document.getElementById('ver-label');
+  if(el) el.textContent=VERSION;
+});
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/anki-maker/sw.js').catch(()=>{});
 }
 </script>
 </body>
