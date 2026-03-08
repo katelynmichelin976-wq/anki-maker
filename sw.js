@@ -1,3 +1,6 @@
+// 版本号说明：只在更换图标或 manifest 时才需要修改
+// index.html 使用网络优先策略，每次有网都自动获取最新版
+// 发布新版本只需改 index.html 里的 VERSION 常量即可
 const CACHE = 'yihai-v23';
 
 // 这些资源才缓存（静态资源）
