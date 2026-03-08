@@ -671,16 +671,18 @@ function buildEdit(card){
     <div class="es">
       <div class="elabel">语音提示</div>
       <div class="rec-box ${hasAud?'ok':''}" id="ra-${card.id}">
-        <button class="rec-btn" id="recbtn-${card.id}" onclick="toggleRec('${card.id}')">
-          ${hasAud?'🎙 重新录音':'🎙 开始录音'}
-        </button>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="rec-btn" id="recbtn-${card.id}" onclick="toggleRec('${card.id}')">
+            ${hasAud?'🎙 重新录音':'🎙 开始录音'}
+          </button>
+          ${hasAud?`<button class="rec-del" onclick="delAudio('${card.id}')">✕ 删除录音</button>`:''}
+        </div>
         <div class="rec-st ${hasAud?'ok':''}" id="recst-${card.id}">
           ${hasAud?`✓ 录音完成（${card.audioExt}）`:'点击录制真人发音'}
         </div>
         <div class="rec-play" id="recpl-${card.id}" style="${hasAud?'display:block':''}">
           ${hasAud?`<audio controls src="${card.audioDataUrl}"></audio>`:''}
         </div>
-        ${hasAud?`<button class="rec-del" onclick="delAudio('${card.id}')">✕ 删除录音</button>`:''}
       </div>
     </div>
     <div class="edit-foot">
@@ -954,7 +956,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v28';
+const VERSION = 'v29';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
