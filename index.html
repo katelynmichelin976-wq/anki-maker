@@ -242,7 +242,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
   </svg>
   <div>
     <div class="app-header-title">忆海拾光</div>
-    <div class="app-header-sub">制卡工具 · 拍照 · 录音 · 生成 Anki 牌组</div>
+    <div class="app-header-sub">制卡工具 · 拍照 · 录音 · 生成 Anki 牌组 <span style="opacity:.5;font-size:10px;margin-left:4px">v20</span></div>
   </div>
 </div>
 
@@ -852,12 +852,15 @@ async function genApkg(){
   const now=Math.floor(Date.now()/1000),SEP='\x1f';
   const midx={},mfiles=[];let mi=0;
   for(const c of cards){
+    // 文件名基于卡片名哈希，稳定不随顺序变化
+    const fnHash=await sha1(deckName+'::'+c.name);
+    const fnBase=String(fnHash).slice(-8);
     if(c.imageBlob){
-      const fn=`img_${mi}.jpg`;c._img=fn;midx[String(mi)]=fn;
+      const fn=`img_${fnBase}.jpg`;c._img=fn;midx[String(mi)]=fn;
       mfiles.push({i:mi,buf:await c.imageBlob.arrayBuffer()});mi++;
     }else c._img=null;
     if(c.audioBlob){
-      const fn=`snd_${mi}.${c.audioExt||'m4a'}`;c._snd=fn;midx[String(mi)]=fn;
+      const fn=`snd_${fnBase}.${c.audioExt||'m4a'}`;c._snd=fn;midx[String(mi)]=fn;
       mfiles.push({i:mi,buf:await c.audioBlob.arrayBuffer()});mi++;
     }else c._snd=null;
   }
@@ -912,8 +915,8 @@ async function genApkg(){
     const audio=c._snd?`[sound:${c._snd}]`:'';
     const flds=front+SEP+c.name+SEP+audio;
     const cs=await sha1(front||c.name);
-    db.run('INSERT INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,guidStr,MID,now,-1,'',flds,front||c.name,cs,0,'']);
-    db.run('INSERT INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid,nid,DID,0,now,-1,0,0,i+1,0,0,0,0,0,0,0,0,'']);
+    db.run('INSERT OR REPLACE INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,guidStr,MID,now,-1,'',flds,front||c.name,cs,0,'']);
+    db.run('INSERT OR REPLACE INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid,nid,DID,0,now,-1,0,0,i+1,0,0,0,0,0,0,0,0,'']);
   }
 
   const dbb=db.export();db.close();
@@ -928,7 +931,7 @@ async function genApkg(){
 
 
 <script>
-const APP_VERSION = 'v19';
+const APP_VERSION = 'v20';
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/anki-maker/sw.js').then(reg => {
