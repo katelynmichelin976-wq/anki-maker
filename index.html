@@ -91,8 +91,8 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 .crow{display:grid;grid-template-columns:26px 1fr 48px 48px 48px;gap:6px;align-items:center;padding:11px 12px;min-height:56px;}
 .cidx{width:24px;height:24px;border-radius:50%;background:var(--warm);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}
 .ci.editing .cidx{background:var(--accent);border-color:var(--accent);color:#fff}
-.ci.editing .cthumb{display:none;}
-.ci.editing .crow{grid-template-columns:26px 1fr 50px 50px !important;}
+.ci.editing .cthumb{display:none;}.ci.editing .cname{visibility:hidden;}
+.ci.editing .crow{grid-template-columns:26px 1fr 48px 48px !important;}
 .cname{font-size:15px;font-weight:600;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cname.empty{color:var(--muted);font-style:italic;font-weight:400;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-size:13px}
 
@@ -954,7 +954,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v25';
+const VERSION = 'v28';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
