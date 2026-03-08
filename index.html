@@ -848,6 +848,7 @@ function dlApkg(){
 }
 
 async function genApkg(){
+  const sha1=async s=>{const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s));return parseInt(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,12),16)%9007199254740991;};
   const MID=1948020901972,DID=1731234567941;
   const now=Math.floor(Date.now()/1000),SEP='\x1f';
   const midx={},mfiles=[];let mi=0;
@@ -900,8 +901,6 @@ async function genApkg(){
   db.run('INSERT INTO col VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',[1,now,now,now*1000,11,0,-1,0,
     JSON.stringify(co),JSON.stringify(mo),JSON.stringify(do_),JSON.stringify(dc),'{}']);
 
-  const sha1=async s=>{const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s));
-    return parseInt(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,12),16)%9007199254740991;};
   const rg=()=>Math.floor(Math.random()*0xFFFFFFFF).toString(16).padStart(8,'0');
 
   for(let i=0;i<cards.length;i++){
@@ -931,7 +930,7 @@ async function genApkg(){
 
 
 <script>
-const APP_VERSION = 'v20';
+const APP_VERSION = 'v21';
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/anki-maker/sw.js').then(reg => {
