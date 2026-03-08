@@ -3,12 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>忆海拾光 · 同步验证 v6</title>
-<!-- CloudBase JS SDK v2，分模块引入，顺序不能乱 -->
-<script src="https://cdn.jsdelivr.net/npm/@cloudbase/js-sdk@2/cloudbase.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@cloudbase/js-sdk@2/cloudbase.auth.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@cloudbase/js-sdk@2/cloudbase.database.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@cloudbase/js-sdk@2/cloudbase.realtime.js"></script>
+<title>忆海拾光 · 同步验证 v7</title>
+<!-- CloudBase JS SDK v2 全量包，腾讯官方 CDN -->
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/2.15.1/cloudbase.full.js"></script>
+
 <style>
   :root {
     --bg: #0d1117;
@@ -363,7 +361,7 @@
 const ENV_ID = 'yihai-dev-3go2jmd192b93c11'
 const COLLECTION = 'sync_session'
 const DOC_ID = 'current'
-const VERSION = 'v6'
+const VERSION = 'v7'
 
 // ── 示例卡片数据 ──────────────────────────────────────
 const CARDS = [
