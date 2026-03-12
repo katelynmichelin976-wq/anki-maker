@@ -909,7 +909,7 @@ async function genApkg(){
   const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
 
   // ── 四选一模板正面：JS每次打乱4个选项，点击高亮正确答案+TTS朗读
-  const qfmt2=`<div class=\"iw\">{{Front}}</div><p class=\"qh\">请 选 出 正 确 答 案</p><div id=\"_opts\" style=\"display:none\"><span>{{Name}}</span><span>{{D1}}</span><span>{{D2}}</span><span>{{D3}}</span></div><div class=\"choices\" id=\"cbox\"></div><div id=\"_showbtn\" style=\"display:none;text-align:center;margin:10px 0 6px\"><div class=\"showansbtn\" onclick=\"document.getElementById('answer').click()\">👆 点击查看答案</div></div><script>(function(){var spans=document.getElementById(\"_opts\").querySelectorAll(\"span\");var opts=Array.from(spans).map(function(s){return s.textContent;});for(var k=opts.length-1;k>0;k--){var r=Math.floor(Math.random()*(k+1));var t=opts[k];opts[k]=opts[r];opts[r]=t;}var box=document.getElementById(\"cbox\");opts.forEach(function(o){var b=document.createElement(\"button\");b.className=\"cb\";b.textContent=o;b.onclick=function(){if(box.dataset.done)return;box.dataset.done=1;this.style.borderColor=\"#7A5C3E\";this.style.borderWidth=\"3px\";document.getElementById(\"_showbtn\").style.display=\"block\";};box.appendChild(b);});})();<\/script>`
+  const qfmt2=`<div class=\"iw\">{{Front}}</div><p class=\"qh\">请 选 出 正 确 答 案</p><div id=\"_opts\" style=\"display:none\"><span>{{Name}}</span><span>{{D1}}</span><span>{{D2}}</span><span>{{D3}}</span></div><div class=\"choices\" id=\"cbox\" style=\"position:relative;z-index:10000\"></div><div id=\"_showbtn\" style=\"display:none;text-align:center;margin:10px 0 6px\"><div class=\"showansbtn\">👆 点击查看答案</div></div><div id=\"_mask\" style=\"position:fixed;inset:0;z-index:9999;background:transparent\"></div><script>(function(){var spans=document.getElementById(\"_opts\").querySelectorAll(\"span\");var opts=Array.from(spans).map(function(s){return s.textContent;});for(var k=opts.length-1;k>0;k--){var r=Math.floor(Math.random()*(k+1));var t=opts[k];opts[k]=opts[r];opts[r]=t;}var box=document.getElementById(\"cbox\");opts.forEach(function(o){var b=document.createElement(\"button\");b.className=\"cb\";b.textContent=o;b.onclick=function(){if(box.dataset.done)return;box.dataset.done=1;this.style.borderColor=\"#7A5C3E\";this.style.borderWidth=\"3px\";var mask=document.getElementById(\"_mask\");if(mask)mask.parentNode.removeChild(mask);document.getElementById(\"_showbtn\").style.display=\"block\";};box.appendChild(b);});})();<\/script>`
   // 四选一背面：展示正确答案+TTS（照护者评分用）
   const afmt2='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
 
@@ -996,7 +996,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v41';
+const VERSION = 'v43';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
