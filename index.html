@@ -850,8 +850,12 @@ async function doBuild(){
     apkgBlob=await genApkg();
     let ti=0,ts=0;
     cards.forEach(c=>{if(c.imageSizeKB)ti+=c.imageSizeKB;if(c.audioBlob)ts+=Math.round(c.audioBlob.size/1024);});
+    const choiceCount=cards.length>=4?cards.length:0;
+    const modeDesc=choiceCount
+      ?'翻牌 '+cards.length+' 题 ＋ 四选一 '+choiceCount+' 题'
+      :'翻牌 '+cards.length+' 题（卡片不足4张，仅翻牌模式）';
     document.getElementById('rdetail').innerHTML=
-      `牌组：<b>${esc(deckName)}</b><br>${cards.length} 张卡片 ｜ 图片 ${fmtKB(ti)} ｜ 录音 ${fmtKB(ts)}`;
+      '牌组：<b>'+esc(deckName)+'</b><br>'+modeDesc+'<br>图片 '+fmtKB(ti)+' ｜ 录音 '+fmtKB(ts);
     goStep(3);
   }catch(err){
     const eb=document.getElementById('p2err');eb.textContent='生成失败：'+err.message;eb.classList.add('show');
@@ -870,11 +874,13 @@ function dlApkg(){
 
 async function genApkg(){
   const sha1=async s=>{const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s));return parseInt(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,12),16)%9007199254740991;};
-  const MID=1948020901972,DID=1731234567941;
+  // v36：新MID（妈妈生日+制作年2026），新增D1/D2/D3三个干扰项字段，双模板
+  const MID=1948020902026,DID=1731234567941;
   const now=Math.floor(Date.now()/1000),SEP='\x1f';
+  const hasChoice=cards.length>=4; // ≥4张才生成四选一模板
+
   const midx={},mfiles=[];let mi=0;
   for(const c of cards){
-    // 文件名基于卡片名哈希，稳定不随顺序变化
     const fnHash=await sha1(deckName+'::'+c.name);
     const fnBase=String(fnHash).slice(-8);
     if(c.imageBlob){
@@ -887,19 +893,43 @@ async function genApkg(){
     }else c._snd=null;
   }
 
-  const css=`.card{font-family:'PingFang SC','Heiti SC','Microsoft YaHei',sans-serif;text-align:center;background:#FFF!important;color:#111!important;padding:0;margin:0}.night_mode .card{background:#FFF!important;color:#111!important}.iw{width:96%;margin:10px auto 0;position:relative;padding-top:96%;border-radius:16px;overflow:hidden;background:#F5F5F5;display:block;margin-left:auto;margin-right:auto}.iw img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;object-fit:contain}.qh{font-size:20px;color:#888;letter-spacing:5px;margin:12px 0 6px;font-weight:600}.dv{border:none;border-top:2px solid #EEE;margin:8px 20px 0}.showansbtn{display:inline-block;margin:8px auto 16px;padding:14px 36px;background:#7A5C3E;color:#FFF;font-size:18px;font-weight:600;border-radius:14px;letter-spacing:1px;}.an{font-size:64px;font-weight:700;color:#111!important;letter-spacing:8px;margin:14px 0 20px;line-height:1.2}`;
+  // ── 为每张卡片预计算3个干扰项（打包时写死，Anki模板JS每次随机打乱顺序）
+  const allNames=cards.map(c=>c.name);
+  function pickDistractors(idx){
+    const pool=allNames.filter((_,j)=>j!==idx);
+    // Fisher-Yates shuffle，取前3
+    for(let k=pool.length-1;k>0;k--){const r=Math.floor(Math.random()*(k+1));[pool[k],pool[r]]=[pool[r],pool[k]];}
+    return pool.slice(0,3);
+  }
 
+  const css=`.card{font-family:'PingFang SC','Heiti SC','Microsoft YaHei',sans-serif;text-align:center;background:#FFF!important;color:#111!important;padding:0;margin:0}.night_mode .card{background:#FFF!important;color:#111!important}.iw{width:96%;margin:10px auto 0;position:relative;padding-top:96%;border-radius:16px;overflow:hidden;background:#F5F5F5;display:block;margin-left:auto;margin-right:auto}.iw img{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;object-fit:contain}.qh{font-size:20px;color:#888;letter-spacing:5px;margin:12px 0 6px;font-weight:600}.dv{border:none;border-top:2px solid #EEE;margin:8px 20px 0}.showansbtn{display:inline-block;margin:8px auto 16px;padding:14px 36px;background:#7A5C3E;color:#FFF;font-size:18px;font-weight:600;border-radius:14px;letter-spacing:1px;}.an{font-size:64px;font-weight:700;color:#111!important;letter-spacing:8px;margin:14px 0 20px;line-height:1.2}.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 16px 6px;}.cb{padding:18px 8px;border:2px solid #DDD;border-radius:14px;background:#FFF;font-size:22px;font-weight:700;font-family:'PingFang SC','Heiti SC','Microsoft YaHei',sans-serif;cursor:pointer;letter-spacing:2px;transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent;}.cb:active{transform:scale(0.96);}.cb.correct{background:#EAF3EE!important;border-color:#4A7C59!important;color:#4A7C59!important;}.cb.wrong{background:#FAEAE7!important;border-color:#9B3A2A!important;color:#9B3A2A!important;}.ch-hint{font-size:13px;color:#AAA;margin:4px 0 10px;}`;
+
+  // ── 翻牌模板（原有，不变）
   const qfmt='<div class="iw">{{Front}}</div><p class="qh">这 是 什 么 ？</p><div class="showansbtn">👆 点击查看答案</div>';
-  // 修复TTS回退：有录音用录音，无录音用TTS
   const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
 
+  // ── 四选一模板正面：JS每次打乱4个选项，点击高亮正确答案+TTS朗读
+  const qfmt2=`<div class="iw">{{Front}}</div><p class="qh">请 选 出 正 确 答 案</p><div class="choices" id="cbox"></div><p class="ch-hint">点击选项查看答案</p><script>(function(){var opts=[{{Name|js}},{{D1|js}},{{D2|js}},{{D3|js}}];var ans="{{Name}}";for(var k=opts.length-1;k>0;k--){var r=Math.floor(Math.random()*(k+1));var t=opts[k];opts[k]=opts[r];opts[r]=t;}var box=document.getElementById("cbox");opts.forEach(function(o){var b=document.createElement("button");b.className="cb";b.textContent=o;b.onclick=function(){if(box.dataset.done)return;box.dataset.done=1;var btns=box.querySelectorAll(".cb");btns.forEach(function(btn){if(btn.textContent===ans)btn.className="cb correct";else btn.className="cb wrong";});if(window.AnkiDroidJS){AnkiDroidJS.showAnswer();}};box.appendChild(b);});})();<\\/script>`;
+  // 四选一背面：展示正确答案+TTS（照护者评分用）
+  const afmt2='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
+
+  // ── 模板列表：翻牌固定有，四选一按卡片数决定
+  const tmpls=[{name:'翻牌',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}];
+  if(hasChoice) tmpls.push({name:'四选一',ord:1,qfmt:qfmt2,afmt:afmt2,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0});
+
+  // ── 字段定义：原4个+新增D1/D2/D3
+  const flds=[
+    {name:'Front',ord:0,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
+    {name:'Name', ord:1,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
+    {name:'Audio',ord:2,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
+    {name:'Seq',  ord:3,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
+    {name:'D1',   ord:4,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
+    {name:'D2',   ord:5,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
+    {name:'D3',   ord:6,sticky:false,rtl:false,font:'Arial',size:20,media:[]}
+  ];
+
   const mo={[MID]:{id:MID,name:'认知训练卡片',type:0,mod:now,usn:-1,sortf:0,did:null,
-    tmpls:[{name:'卡片',ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}],
-    flds:[{name:'Front',ord:0,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
-          {name:'Name', ord:1,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
-          {name:'Audio',ord:2,sticky:false,rtl:false,font:'Arial',size:20,media:[]},
-          {name:'Seq',  ord:3,sticky:false,rtl:false,font:'Arial',size:20,media:[]}],
-    css,latexPre:'',latexPost:'',tags:[],vers:[]}};
+    tmpls,flds,css,latexPre:'',latexPost:'',tags:[],vers:[]}};
   const do_={[DID]:{id:DID,name:deckName,desc:'',extendRev:50,usn:-1,
     collapsed:false,browserCollapsed:false,newToday:[0,0],revToday:[0,0],lrnToday:[0,0],timeToday:[0,0],dyn:0,conf:1,mod:now},
     '1':{id:1,name:'Default',conf:1,extendRev:50,usn:0,collapsed:false,browserCollapsed:false,
@@ -923,25 +953,30 @@ async function genApkg(){
   db.run('INSERT INTO col VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)',[1,now,now,now*1000,11,0,-1,0,
     JSON.stringify(co),JSON.stringify(mo),JSON.stringify(do_),JSON.stringify(dc),'{}']);
 
-  const rg=()=>Math.floor(Math.random()*0xFFFFFFFF).toString(16).padStart(8,'0');
-
   for(let i=0;i<cards.length;i++){
     const c=cards[i];
-    // 基于「牌组名+卡片名」生成稳定ID，支持增量导入
     const noteKey=deckName+'::'+c.name;
     const nid=await sha1(noteKey);
-    const cid=(nid*10+i)%9007199254740991;
-    // guid 基于 nid 转62进制，保证唯一且稳定
+    // 翻牌卡cid用ord=0，四选一用ord=1，两个cid都要唯一且稳定
+    const cid0=(nid*100+i*2)%9007199254740991;
+    const cid1=(nid*100+i*2+1)%9007199254740991;
     const _chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let _n=nid,guidStr='';
     for(let _i=0;_i<10;_i++){guidStr=_chars[_n%62]+guidStr;_n=Math.floor(_n/62);}
     const front=c._img?`<img src="${c._img}">`:'';
     const audio=c._snd?`[sound:${c._snd}]`:'';
     const seq=String(i+1).padStart(4,'0');
-    const flds=front+SEP+c.name+SEP+audio+SEP+seq;
+    const dist=hasChoice?pickDistractors(i):['','',''];
+    // 7个字段：Front SEP Name SEP Audio SEP Seq SEP D1 SEP D2 SEP D3
+    const flds_str=front+SEP+c.name+SEP+audio+SEP+seq+SEP+dist[0]+SEP+dist[1]+SEP+dist[2];
     const cs=await sha1(front||c.name);
-    db.run('INSERT OR REPLACE INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,guidStr,MID,now,-1,'',flds,front||c.name,cs,0,'']);
-    db.run('INSERT OR REPLACE INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid,nid,DID,0,now,-1,0,0,i+1,0,0,0,0,0,0,0,0,'']);
+    db.run('INSERT OR REPLACE INTO notes VALUES(?,?,?,?,?,?,?,?,?,?,?)',[nid,guidStr,MID,now,-1,'',flds_str,front||c.name,cs,0,'']);
+    // 翻牌卡（ord=0）每张都生成
+    db.run('INSERT OR REPLACE INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid0,nid,DID,0,now,-1,0,0,i*2+1,0,0,0,0,0,0,0,0,'']);
+    // 四选一（ord=1）仅≥4张时生成，due错开排在翻牌卡后面
+    if(hasChoice){
+      db.run('INSERT OR REPLACE INTO cards VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[cid1,nid,DID,1,now,-1,0,0,cards.length+i*2+2,0,0,0,0,0,0,0,0,'']);
+    }
   }
 
   const dbb=db.export();db.close();
@@ -958,7 +993,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v35';
+const VERSION = 'v36';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
