@@ -909,16 +909,16 @@ async function genApkg(){
   const afmt='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
 
   // ── 四选一模板正面：JS每次打乱4个选项，点击高亮正确答案+TTS朗读
-  const qfmt2=`<div class=\"iw\">{{Front}}</div><p class=\"qh\">请 选 出 正 确 答 案</p><div id=\"_opts\" style=\"display:none\"><span>{{Name}}</span><span>{{D1}}</span><span>{{D2}}</span><span>{{D3}}</span></div><div class=\"choices\" id=\"cbox\" style=\"position:relative;z-index:10000\"></div><div id=\"_showbtn\" style=\"display:none;text-align:center;margin:10px 0 6px\"><div class=\"showansbtn\" onclick=\"this.parentNode.dataset.done=1;document.getElementById(\'cbox\').dataset.done=1;\">👆 点击查看答案</div></div><div id=\"_mask\" style=\"position:fixed;inset:0;z-index:9999;background:transparent\"></div><script>(function(){var spans=document.getElementById(\"_opts\").querySelectorAll(\"span\");var opts=Array.from(spans).map(function(s){return s.textContent;});for(var k=opts.length-1;k>0;k--){var r=Math.floor(Math.random()*(k+1));var t=opts[k];opts[k]=opts[r];opts[r]=t;}var box=document.getElementById(\"cbox\");opts.forEach(function(o){var b=document.createElement(\"button\");b.className=\"cb\";b.textContent=o;b.onclick=function(){if(box.dataset.done)return;box.querySelectorAll(\".cb\").forEach(function(btn){btn.style.borderColor=\"\";btn.style.borderWidth=\"\";});this.style.borderColor=\"#7A5C3E\";this.style.borderWidth=\"3px\";document.getElementById(\"_showbtn\").style.display=\"block\";};box.appendChild(b);});})();<\/script>`
+  const qfmt2=`<div class=\"iw\">{{Front}}</div><p class=\"qh\">请 选 出 正 确 答 案</p><div id=\"_opts\" style=\"display:none\"><span>{{Name}}</span><span>{{D1}}</span><span>{{D2}}</span><span>{{D3}}</span></div><div class=\"choices\" id=\"cbox\" style=\"position:relative;z-index:10000\"></div><div id=\"_showbtn\" style=\"display:none;text-align:center;margin:10px 0 6px\"><div class=\"showansbtn\" onclick=\"this.parentNode.dataset.done=1;document.getElementById(\'cbox\').dataset.done=1;\">👆 点击查看答案</div></div><div id=\"_mask\" style=\"position:fixed;inset:0;z-index:9999;background:transparent\"></div><script>(function(){var spans=document.getElementById(\"_opts\").querySelectorAll(\"span\");var opts=Array.from(spans).map(function(s){return s.textContent;});for(var k=opts.length-1;k>-1;k--){var r=Math.floor(Math.random()*(k+1));var t=opts[k];opts[k]=opts[r];opts[r]=t;}if(opts[0]===ans){var ri=Math.floor(Math.random()*3)+1;var t=opts[0];opts[0]=opts[ri];opts[ri]=t;}var box=document.getElementById(\"cbox\");opts.forEach(function(o){var b=document.createElement(\"button\");b.className=\"cb\";b.textContent=o;b.onclick=function(){if(box.dataset.done)return;box.querySelectorAll(\".cb\").forEach(function(btn){btn.style.borderColor=\"\";btn.style.borderWidth=\"\";});this.style.borderColor=\"#7A5C3E\";this.style.borderWidth=\"3px\";document.getElementById(\"_showbtn\").style.display=\"block\";};box.appendChild(b);});})();<\/script>`
   // 四选一背面：展示正确答案+TTS（照护者评分用）
   const afmt2='<div class="iw">{{Front}}</div><hr class="dv">{{Audio}}{{^Audio}}{{tts zh_CN:Name}}{{/Audio}}<p class="an">{{Name}}</p>';
 
   // ── 模板列表：翻牌固定有，四选一按卡片数决定
-   // 四选一ord=0先出，翻牌ord=1后出
-  const tmpls=hasChoice
-    ?[{name:'四选一',ord:0,qfmt:qfmt2,afmt:afmt2,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0},
-      {name:'翻牌',  ord:1,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}]
-    :[{name:'翻牌',  ord:0,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}];
+   // 模板固定两套保证MID结构一致，避免重复导入时报模板缺失
+  const tmpls=[
+    {name:'四选一',ord:0,qfmt:qfmt2,afmt:afmt2,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0},
+    {name:'翻牌',  ord:1,qfmt,afmt,bqfmt:'',bafmt:'',did:null,bfont:'',bsize:0}
+  ];
 
   // ── 字段定义：原4个+新增D1/D2/D3
   const flds=[
@@ -996,7 +996,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v44';
+const VERSION = 'v46';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
