@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>情绪感知难度调节 · 演示</title>
+<style>
+:root {
+  --bg: #FAF9F7;
+  --card: #FFFFFF;
+  --border: #E8E4DE;
+  --text: #1A1612;
+  --muted: #7A7670;
+  --accent: #7A5C3E;
+  --green: #3B6D11;
+  --green-l: #EAF3DE;
+  --red: #A32D2D;
+  --red-l: #FCEBEB;
+  --amber: #854F0B;
+  --amber-l: #FAEEDA;
+  --blue: #185FA5;
+  --blue-l: #E6F1FB;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; }
+
+h1 { font-size: 17px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.sub { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+@media(max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+
+.card { background: var(--card); border: 0.5px solid var(--border); border-radius: 12px; padding: 14px; }
+
+/* Camera */
+.cam-wrap { position: relative; border-radius: 10px; overflow: hidden;
+  background: #1a1a1a; aspect-ratio: 4/3; }
+video { width: 100%; height: 100%; object-fit: cover; display: block; transform: scaleX(-1); }
+canvas#overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: scaleX(-1); }
+.cam-label { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,.55);
+  color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+.cam-status { font-size: 12px; color: var(--muted); margin-top: 6px; text-align: center; min-height: 18px; }
+
+/* Emotion bars */
+.emo-title { font-size: 13px; font-weight: 500; margin-bottom: 10px; }
+.emo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.emo-name { font-size: 12px; width: 52px; flex-shrink: 0; color: var(--muted); }
+.emo-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.emo-bar { height: 100%; border-radius: 4px; transition: width .4s ease; }
+.emo-val { font-size: 11px; width: 32px; text-align: right; color: var(--muted); }
+.dominant { font-size: 20px; font-weight: 500; text-align: center; margin: 10px 0 4px; }
+.dom-label { font-size: 11px; color: var(--muted); text-align: center; }
+
+/* Difficulty */
+.diff-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.diff-label { font-size: 13px; font-weight: 500; }
+.diff-val { font-size: 22px; font-weight: 500; }
+.diff-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+.dot { width: 14px; height: 14px; border-radius: 50%; background: var(--border); transition: background .4s; }
+.dot.on { background: var(--accent); }
+.diff-reason { font-size: 12px; color: var(--muted); text-align: center; min-height: 32px; line-height: 1.6; }
+
+/* Sample question */
+.q-card { background: var(--card); border: 0.5px solid var(--border); border-radius: 12px; padding: 14px; }
+.q-tag { display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 20px; margin-bottom: 10px; }
+.q-text { font-size: 15px; font-weight: 500; margin-bottom: 12px; line-height: 1.5; }
+.q-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.q-opt { padding: 10px 8px; border: 0.5px solid var(--border); border-radius: 9px;
+  font-size: 13px; text-align: center; background: var(--bg); cursor: pointer;
+  transition: background .15s; }
+.q-opt:hover { background: var(--amber-l); }
+
+/* Log */
+.log-wrap { max-height: 100px; overflow-y: auto; margin-top: 10px; }
+.log-row { font-size: 11px; color: var(--muted); padding: 2px 0; border-bottom: 0.5px solid var(--border); }
+.log-row:last-child { border: none; }
+
+/* Start button */
+#start-btn { width: 100%; padding: 12px; border: none; border-radius: 10px;
+  background: var(--accent); color: #fff; font-size: 14px; font-weight: 500;
+  cursor: pointer; margin-bottom: 12px; font-family: inherit;
+  display: flex; align-items: center; justify-content: center; gap: 6px; }
+#start-btn:disabled { background: #C8C0B5; cursor: not-allowed; }
+
+.notice { background: var(--blue-l); border: 0.5px solid #B5D4F4; border-radius: 9px;
+  padding: 10px 13px; font-size: 12px; color: var(--blue); line-height: 1.8; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<h1>情绪感知难度调节 · 技术演示</h1>
+<p class="sub">基于 face-api.js · 纯本地推理 · 不上传任何数据</p>
+
+<div class="notice">
+  ℹ 本演示使用 face-api.js（TensorFlow.js），所有推理在设备本地完成，无任何数据离开设备。<br>
+  首次加载需下载约 2MB 模型文件（仅一次）。
+</div>
+
+<button id="start-btn" onclick="startAll()">开启前置摄像头并加载模型</button>
+
+<div class="grid">
+  <div class="card">
+    <div class="cam-wrap">
+      <video id="vid" autoplay muted playsinline></video>
+      <canvas id="overlay"></canvas>
+      <div class="cam-label">前置摄像头</div>
+    </div>
+    <div class="cam-status" id="cam-st">等待启动…</div>
+  </div>
+
+  <div class="card">
+    <div class="emo-title">实时情绪分析</div>
+    <div id="emo-bars">
+      <div class="dominant" id="dom-emo">－</div>
+      <div class="dom-label">当前主导情绪</div>
+      <div style="height:10px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="diff-row">
+      <div class="diff-label">当前难度</div>
+      <div class="diff-val" id="diff-num">3</div>
+    </div>
+    <div class="diff-dots" id="diff-dots"></div>
+    <div class="diff-reason" id="diff-reason">等待情绪数据…</div>
+    <div style="height:8px"></div>
+    <div style="font-size:11px;color:var(--muted);border-top:0.5px solid var(--border);padding-top:8px">
+      调节日志
+    </div>
+    <div class="log-wrap" id="log"></div>
+  </div>
+
+  <div class="q-card">
+    <div id="q-tag" class="q-tag" style="background:var(--green-l);color:var(--green)">难度 3</div>
+    <div class="q-text" id="q-text">这是妈妈每天用来喝水的东西，叫什么？</div>
+    <div class="q-opts" id="q-opts">
+      <div class="q-opt">水杯</div>
+      <div class="q-opt">枕头</div>
+      <div class="q-opt">毛巾</div>
+      <div class="q-opt">钥匙</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js"></script>
+<script>
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/model';
+
+const EMO_LABELS = { neutral:'平静', happy:'开心', sad:'难过', angry:'烦躁',
+  fearful:'焦虑', disgusted:'厌烦', surprised:'惊喜' };
+
+const EMO_COLORS = { neutral:'#888780', happy:'#3B6D11', sad:'#185FA5',
+  angry:'#A32D2D', fearful:'#854F0B', disgusted:'#993556', surprised:'#534AB7' };
+
+const QUESTIONS = [
+  // 难度1：极简
+  { d:1, text:'这个红色的水果叫什么？', opts:['苹果','书本','椅子','手机'], ans:0 },
+  { d:1, text:'妈妈睡觉用的地方叫什么？', opts:['床','灶台','门','窗户'], ans:0 },
+  // 难度2：简单
+  { d:2, text:'每天早上刷牙用的东西叫什么？', opts:['牙刷','钥匙','眼镜','杯子'], ans:0 },
+  { d:2, text:'放在头上遮太阳的叫什么？', opts:['帽子','鞋子','手套','围巾'], ans:0 },
+  // 难度3：中等
+  { d:3, text:'这是妈妈每天用来喝水的东西，叫什么？', opts:['水杯','枕头','毛巾','钥匙'], ans:0 },
+  { d:3, text:'冬天出门要穿的保暖衣物是？', opts:['羽绒服','短裤','凉鞋','背心'], ans:0 },
+  // 难度4：稍难
+  { d:4, text:'厨房里用来切菜的工具叫什么？', opts:['菜刀','扫帚','剪刀','钳子'], ans:0 },
+  { d:4, text:'下雨时撑开可以挡雨的叫什么？', opts:['雨伞','风扇','暖壶','饭盒'], ans:0 },
+  // 难度5：挑战
+  { d:5, text:'把食物放进去加热，发出"叮"声的电器叫什么？', opts:['微波炉','洗衣机','电视','冰箱'], ans:0 },
+  { d:5, text:'妈妈年轻时用来缝衣服的工具叫什么？', opts:['缝纫机','照相机','收音机','留声机'], ans:0 },
+];
+
+let difficulty = 3;
+let emoHistory = [];
+let running = false;
+const MAX_DIFF = 5;
+
+function renderDots() {
+  const c = document.getElementById('diff-dots');
+  c.innerHTML = '';
+  for (let i = 1; i <= MAX_DIFF; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i <= difficulty ? ' on' : '');
+    c.appendChild(d);
+  }
+}
+
+function pickQuestion(d) {
+  const pool = QUESTIONS.filter(q => q.d === d);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function renderQuestion(d) {
+  const q = pickQuestion(d);
+  const tagEl = document.getElementById('q-tag');
+  const textEl = document.getElementById('q-text');
+  const optsEl = document.getElementById('q-opts');
+  const colors = [
+    { bg:'#EAF3DE', fg:'#3B6D11' }, { bg:'#E6F1FB', fg:'#185FA5' },
+    { bg:'#FAEEDA', fg:'#854F0B' }, { bg:'#FCEBEB', fg:'#A32D2D' },
+    { bg:'#FAEEDA', fg:'#534AB7' }
+  ];
+  const col = colors[d - 1];
+  tagEl.textContent = '难度 ' + d;
+  tagEl.style.background = col.bg;
+  tagEl.style.color = col.fg;
+  document.getElementById('diff-num').textContent = d;
+  document.getElementById('diff-num').style.color = col.fg;
+  textEl.textContent = q.text;
+  optsEl.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'q-opt';
+    btn.textContent = o;
+    btn.onclick = () => {
+      optsEl.querySelectorAll('.q-opt').forEach(b => b.style.background = '');
+      btn.style.background = i === q.ans ? '#EAF3DE' : '#FCEBEB';
+      btn.style.borderColor = i === q.ans ? '#3B6D11' : '#A32D2D';
+    };
+    optsEl.appendChild(btn);
+  });
+}
+
+function addLog(msg) {
+  const log = document.getElementById('log');
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  const t = new Date();
+  const ts = t.getHours().toString().padStart(2,'0') + ':' +
+             t.getMinutes().toString().padStart(2,'0') + ':' +
+             t.getSeconds().toString().padStart(2,'0');
+  row.textContent = ts + ' ' + msg;
+  log.insertBefore(row, log.firstChild);
+  if (log.children.length > 20) log.removeChild(log.lastChild);
+}
+
+function adjustDifficulty(dominant, expressions) {
+  emoHistory.push(dominant);
+  if (emoHistory.length > 5) emoHistory.shift();
+
+  const counts = {};
+  emoHistory.forEach(e => counts[e] = (counts[e] || 0) + 1);
+  const mostFreq = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+  const oldDiff = difficulty;
+
+  const upTriggers = ['happy', 'surprised'];
+  const downTriggers = ['fearful', 'sad', 'disgusted', 'angry'];
+
+  const upCount = emoHistory.filter(e => upTriggers.includes(e)).length;
+  const downCount = emoHistory.filter(e => downTriggers.includes(e)).length;
+
+  let reason = '';
+  if (downCount >= 3 && difficulty > 1) {
+    difficulty = Math.max(1, difficulty - 1);
+    reason = `连续检测到${EMO_LABELS[mostFreq]}情绪，降低难度以减少压力`;
+  } else if (upCount >= 4 && difficulty < MAX_DIFF) {
+    difficulty = Math.min(MAX_DIFF, difficulty + 1);
+    reason = `持续检测到${EMO_LABELS[mostFreq]}情绪，适当提升挑战`;
+  } else {
+    reason = `情绪${EMO_LABELS[dominant]}（${(expressions[dominant]*100).toFixed(0)}%），维持当前难度`;
+  }
+
+  document.getElementById('diff-reason').textContent = reason;
+  renderDots();
+
+  if (difficulty !== oldDiff) {
+    addLog(`难度 ${oldDiff} → ${difficulty}：${reason}`);
+    renderQuestion(difficulty);
+  }
+}
+
+function renderEmoBars(expressions) {
+  const sorted = Object.entries(expressions).sort((a,b) => b[1]-a[1]);
+  const dom = sorted[0][0];
+
+  document.getElementById('dom-emo').textContent = EMO_LABELS[dom] || dom;
+  document.getElementById('dom-emo').style.color = EMO_COLORS[dom] || '#333';
+
+  const bars = document.getElementById('emo-bars');
+  const existing = bars.querySelectorAll('.emo-row');
+  if (existing.length === 0) {
+    sorted.forEach(([emo]) => {
+      const row = document.createElement('div');
+      row.className = 'emo-row';
+      row.id = 'erow-' + emo;
+      row.innerHTML = `<div class="emo-name">${EMO_LABELS[emo]||emo}</div>
+        <div class="emo-bar-bg"><div class="emo-bar" id="ebar-${emo}" style="width:0%;background:${EMO_COLORS[emo]}"></div></div>
+        <div class="emo-val" id="eval-${emo}">0%</div>`;
+      bars.appendChild(row);
+    });
+  }
+  sorted.forEach(([emo, val]) => {
+    const bar = document.getElementById('ebar-' + emo);
+    const lbl = document.getElementById('eval-' + emo);
+    if (bar) bar.style.width = (val * 100).toFixed(1) + '%';
+    if (lbl) lbl.textContent = (val * 100).toFixed(0) + '%';
+  });
+
+  return dom;
+}
+
+async function startAll() {
+  const btn = document.getElementById('start-btn');
+  btn.disabled = true;
+  btn.textContent = '加载模型中…（约2MB）';
+  document.getElementById('cam-st').textContent = '正在加载 face-api.js 模型…';
+
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+    document.getElementById('cam-st').textContent = '模型加载成功，正在开启摄像头…';
+  } catch(e) {
+    document.getElementById('cam-st').textContent = '模型加载失败：' + e.message;
+    btn.disabled = false;
+    btn.textContent = '重试';
+    return;
+  }
+
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+  } catch(e) {
+    document.getElementById('cam-st').textContent = '摄像头权限被拒绝，请在设置中开启';
+    btn.disabled = false;
+    btn.textContent = '重新获取权限';
+    return;
+  }
+
+  const vid = document.getElementById('vid');
+  vid.srcObject = stream;
+  await new Promise(r => vid.onloadedmetadata = r);
+  vid.play();
+
+  const canvas = document.getElementById('overlay');
+  canvas.width = vid.videoWidth;
+  canvas.height = vid.videoHeight;
+
+  document.getElementById('cam-st').textContent = '检测中…每2秒分析一次';
+  btn.style.display = 'none';
+  running = true;
+  renderDots();
+  renderQuestion(difficulty);
+  addLog('开始检测');
+
+  setInterval(async () => {
+    if (!running) return;
+    try {
+      const det = await faceapi
+        .detectSingleFace(vid, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
+        .withFaceExpressions();
+
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (!det) {
+        document.getElementById('dom-emo').textContent = '未检测到人脸';
+        document.getElementById('cam-st').textContent = '未检测到人脸，请确保面部在画面内';
+        return;
+      }
+
+      const box = det.detection.box;
+      ctx.strokeStyle = '#7A5C3E';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(canvas.width - box.x - box.width, box.y, box.width, box.height);
+
+      const dominant = renderEmoBars(det.expressions);
+      adjustDifficulty(dominant, det.expressions);
+      document.getElementById('cam-st').textContent = '正常检测中 ✓';
+    } catch(e) {
+      console.error(e);
+    }
+  }, 2000);
+}
+
+renderDots();
+renderQuestion(difficulty);
+</script>
+</body>
+</html>
