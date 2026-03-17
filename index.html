@@ -112,7 +112,8 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 
 .es{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
 .elabel{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
-.ename{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-weight:600;background:#fff;color:var(--text);width:100%}
+.ename{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-weight:600;background:#fff;color:var(--text);width:100%;resize:vertical}
+textarea.ename{font-weight:400;min-height:80px}
 .f-input::placeholder,.ename::placeholder{font-weight:400;color:var(--muted);}
 .ename:focus{outline:none;border-color:var(--accent)}
 
@@ -319,6 +320,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
     <div class="rdetail" id="rdetail"></div>
     <div class="rbtns">
       <button class="btn btn-g" onclick="dlApkg()">⬇ 下载 .apkg</button>
+      <button class="btn btn-g" id="btn-json" onclick="doExportJson()">⬇ 导出 JSON</button>
       <button class="btn btn-s" onclick="tryReset()">重新制作</button>
     </div>
     <div class="howto">
@@ -437,8 +439,8 @@ async function doImport(e){
       // 序号在 flds[3]
       const seq=flds[3]?parseInt(flds[3]):9999;
       const card={id:Date.now()*1000+Math.floor(Math.random()*999),name,_seq:seq,
-        imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
-        audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'};
+        imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,imageName:null,
+        audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a',hints:[]};
       // 图片
       const im=flds[0].match(/src="([^"]+\.(jpg|jpeg|png|gif|webp))"/i);
       if(im){const zi=nameToIdx[im[1]];if(zi!=null){
@@ -446,6 +448,7 @@ async function doImport(e){
         const blob=new Blob([buf],{type:'image/jpeg'});
         card.imageBlob=blob;card.imageDataUrl=await blobToUrl(blob);
         card.imageSizeKB=Math.round(blob.size/1024);card.origKB=card.imageSizeKB;
+        card.imageName=im[1]; // 保存原始文件名
       }}
       // 录音
       const sm=(flds[2]||'').match(/\[sound:([^\]]+)\]/);
@@ -480,8 +483,8 @@ function blobToUrl(b){return new Promise(r=>{const fr=new FileReader();fr.onload
 // ═══════════════════════════════════════════
 function addCard(){
   const id=Date.now()*1000+Math.floor(Math.random()*999);
-  cards.push({id,name:'',imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
-    audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'});
+  cards.push({id,name:'',imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,imageName:null,
+    audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a',hints:[]});
   openEdit(id);
   renderList();
   // iOS Safari 要求 focus() 在用户手势的同步调用栈内，不能走 setTimeout
@@ -647,6 +650,7 @@ function toggleEdit(id){
 function buildEdit(card){
   const hasImg=!!card.imageDataUrl;
   const hasAud=!!card.audioBlob;
+  const hints=(card.hints||[]).join('\n');
   const camSvg=`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>`;
   return `
     <div class="es">
@@ -669,6 +673,11 @@ function buildEdit(card){
           <div class="img-sz" id="isz-${card.id}">${hasImg?`已压缩 ${card.imageSizeKB}KB（原 ${card.origKB}KB）`:''}</div>
         </div>
       </div>
+    </div>
+    <div class="es">
+      <div class="elabel">提示信息（每行一条）</div>
+      <textarea class="ename" placeholder="例：红色圆圆的&#10;可以直接吃&#10;甜甜的很好吃" rows="3"
+        oninput="updField('${card.id}','hints',this.value.split('\n').filter(x=>x.trim()))">${esc(hints)}</textarea>
     </div>
     <div class="es">
       <div class="elabel">语音提示</div>
@@ -708,6 +717,8 @@ async function handleImg(e,cardId){
   const card=cards.find(c=>String(c.id)===String(cardId));
   const r=await compressImg(file,getQ());
   card.imageDataUrl=r.dataUrl;card.imageBlob=r.blob;card.imageSizeKB=r.sizeKB;card.origKB=r.origKB;
+  // 保存原始文件名（提取纯文件名，去除路径）
+  card.imageName=file.name.split(/[/\\]/).pop();
   // 更新编辑区局部UI
   const ib=document.getElementById('ib-'+cardId);
   if(ib) ib.innerHTML=`<img src="${r.dataUrl}">`;
@@ -872,6 +883,62 @@ function dlApkg(){
   document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
+// ═══════════════════════════════════════════
+// JSON 导出
+// ═══════════════════════════════════════════
+async function doExportJson(){
+  if(!cards.length)return;
+  const btn=document.getElementById('btn-json');
+  btn.textContent='导出中…';btn.disabled=true;
+  try{
+    // 预计算每张卡片的干扰项（与Anki导出一致）
+    const allNames=cards.map(c=>c.name);
+    const pickDistractors=idx=>{
+      const pool=allNames.filter((_,j)=>j!==idx);
+      for(let k=pool.length-1;k>0;k--){
+        const r=Math.floor(Math.random()*(k+1));
+        [pool[k],pool[r]]=[pool[r],pool[k]];
+      }
+      return pool.slice(0,3);
+    };
+    // 构建 JSON 数据
+    const key=deckName.toLowerCase().replace(/[^a-z0-9]/g,'');
+    const json={
+      version:'1.0',
+      deck:{ name:deckName, key },
+      cards:cards.map((c,i)=>{
+        const dist=pickDistractors(i);
+        const opts=[c.name,...dist].sort(()=>Math.random()-0.5);
+        return {
+          id:'card_'+String(c.id).slice(-8),
+          name:c.name,
+          image:c.imageName||(c.name+'.jpg'),
+          audio:c.audioName||null,
+          seq:i+1,
+          hints:c.hints||[],
+          options:opts
+        };
+      })
+    };
+    // 打包 ZIP（含 JSON + media 文件夹）
+    const zip=new JSZip();
+    zip.file('deck_'+key+'_v1.0.json',JSON.stringify(json,null,2));
+    const media=zip.folder('media');
+    for(const c of cards){
+      if(c.imageBlob){
+        media.file(c.imageName||(c.name+'.jpg'),c.imageBlob);
+      }
+    }
+    const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='deck_'+key+'_v1.0.zip';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+  }catch(err){
+    alert('导出失败：'+err.message);
+  }finally{btn.textContent='⬇ 导出 JSON';btn.disabled=false;}
+}
+
 async function genApkg(){
   const sha1=async s=>{const b=await crypto.subtle.digest('SHA-1',new TextEncoder().encode(s));return parseInt(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,12),16)%9007199254740991;};
   // v36：新MID（妈妈生日+制作年2026），新增D1/D2/D3三个干扰项字段，双模板
@@ -996,7 +1063,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v46';
+const VERSION = 'v47';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
