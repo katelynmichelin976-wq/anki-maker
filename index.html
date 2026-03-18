@@ -112,8 +112,7 @@ body{font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;b
 
 .es{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
 .elabel{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
-.ename{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-weight:600;background:#fff;color:var(--text);width:100%;resize:vertical}
-textarea.ename{font-weight:400;min-height:80px}
+.ename{border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:16px;font-family:'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-weight:600;background:#fff;color:var(--text);width:100%}
 .f-input::placeholder,.ename::placeholder{font-weight:400;color:var(--muted);}
 .ename:focus{outline:none;border-color:var(--accent)}
 
@@ -271,10 +270,10 @@ textarea.ename{font-weight:400;min-height:80px}
     <div class="mode-card" id="mc-imp" onclick="selMode('import')">
       <div class="mc-hd">
         <div class="mc-ico">📂</div>
-        <div><div class="mc-ttl">导入牌组</div><div class="mc-sub">载入 .apkg 继续编辑</div></div>
+        <div><div class="mc-ttl">导入牌组</div><div class="mc-sub">载入 .apkg 或 .yhspack 继续编辑</div></div>
       </div>
-      <input type="file" id="apkg-input" accept=".apkg" style="display:none" onchange="doImport(event)">
-      <div class="imp-st" id="imp-st" style="font-size:13px;color:var(--muted);margin-top:4px">点击此处选择 .apkg 文件</div>
+      <input type="file" id="apkg-input" accept=".apkg,.yhspack" style="display:none" onchange="doImport(event)">
+      <div class="imp-st" id="imp-st" style="font-size:13px;color:var(--muted);margin-top:4px">点击此处选择 .apkg 或 .yhspack 文件</div>
     </div>
 
   </div>
@@ -308,6 +307,7 @@ textarea.ename{font-weight:400;min-height:80px}
   <div class="err" id="p2err"></div>
   <div class="bot">
     <button class="btn btn-s" onclick="goStep(1)">返回修改</button>
+    <button class="btn btn-s" id="btn-yhspack-p2" onclick="exportYhspack(this)" style="border-color:var(--blue);color:var(--blue)">⬇ .yhspack</button>
     <button class="btn btn-g" id="btn-gen" onclick="doBuild()">✦ 生成牌组</button>
   </div>
 </div>
@@ -320,8 +320,10 @@ textarea.ename{font-weight:400;min-height:80px}
     <div class="rdetail" id="rdetail"></div>
     <div class="rbtns">
       <button class="btn btn-g" onclick="dlApkg()">⬇ 下载 .apkg</button>
-      <button class="btn btn-g" id="btn-json" onclick="doExportJson()">⬇ 导出 JSON</button>
       <button class="btn btn-s" onclick="tryReset()">重新制作</button>
+    </div>
+    <div class="rbtns" style="margin-top:10px">
+      <button class="btn btn-s" id="btn-yhspack" onclick="exportYhspack(this)" style="width:100%;border-color:var(--blue);color:var(--blue)">⬇ 导出 .yhspack（训练App用）</button>
     </div>
     <div class="howto">
       <b>iPhone 导入：</b>点下载 → 弹出菜单选"在 Anki 中打开"<br>
@@ -407,9 +409,90 @@ function chkP0(){
   if(mode==='new') deckName=document.getElementById('dk-name').value.trim();
 }
 
-// ── 导入 .apkg ──────────────────────────────
+// ── 导入入口（路由到对应解析函数）──────────────
 async function doImport(e){
   const file=e.target.files[0];if(!file)return;
+  if(file.name.toLowerCase().endsWith('.yhspack')){
+    await doImportYhspack(file);
+  } else {
+    await doImportApkg(file);
+  }
+}
+
+// ── 导入 .yhspack ────────────────────────────
+async function doImportYhspack(file){
+  const st=document.getElementById('imp-st');
+  st.textContent='解析中…';st.className='imp-st';
+  try{
+    await ldScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    const zip=await JSZip.loadAsync(await file.arrayBuffer());
+
+    // 读 deck.json
+    const jsonFile=zip.file('deck.json');
+    if(!jsonFile){st.textContent='格式错误：未找到 deck.json';st.className='imp-st err';return;}
+    const deckData=JSON.parse(await jsonFile.async('string'));
+    const deck=deckData.deck;
+    if(!deck||!deck.cards){st.textContent='格式错误：deck.cards 不存在';st.className='imp-st err';return;}
+
+    deckName=deck.name||file.name.replace('.yhspack','');
+    const imported=[];
+
+    for(let i=0;i<deck.cards.length;i++){
+      const c=deck.cards[i];
+      if(!c.name)continue;
+      const card={
+        id:Date.now()*1000+Math.floor(Math.random()*999),
+        name:c.name,_seq:i,
+        imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
+        audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'
+      };
+
+      // 图片
+      if(c.image){
+        const imgFile=zip.file(c.image);
+        if(imgFile){
+          const buf=await imgFile.async('arraybuffer');
+          const blob=new Blob([buf],{type:'image/jpeg'});
+          card.imageBlob=blob;
+          card.imageDataUrl=await blobToUrl(blob);
+          card.imageSizeKB=Math.round(blob.size/1024);
+          card.origKB=card.imageSizeKB;
+        }
+      }
+
+      // 录音
+      if(c.audio){
+        const audFile=zip.file(c.audio);
+        if(audFile){
+          const buf=await audFile.async('arraybuffer');
+          const ext=(c.audio.split('.').pop()||'m4a').toLowerCase();
+          const mime={'m4a':'audio/mp4','mp4':'audio/mp4','mp3':'audio/mpeg',
+                      'ogg':'audio/ogg','webm':'audio/webm','aac':'audio/aac'}[ext]||'audio/mp4';
+          const blob=new Blob([buf],{type:mime});
+          card.audioBlob=blob;
+          card.audioName=c.audio.split('/').pop();
+          card.audioExt=ext;
+          card.audioDataUrl=URL.createObjectURL(blob);
+        }
+      }
+
+      imported.push(card);
+    }
+
+    if(!imported.length){st.textContent='未找到有效卡片';st.className='imp-st err';return;}
+    cards=imported;
+    selMode('import');
+    st.textContent=`✓ 解析完成：${imported.length} 张，牌组「${deckName}」`;
+    st.className='imp-st ok';
+    chkP0();
+  }catch(err){
+    st.textContent='解析失败：'+err.message;st.className='imp-st err';
+    console.error(err);
+  }
+}
+
+// ── 导入 .apkg ──────────────────────────────
+async function doImportApkg(file){
   const st=document.getElementById('imp-st');
   st.textContent='解析中…';st.className='imp-st';
   try{
@@ -439,8 +522,8 @@ async function doImport(e){
       // 序号在 flds[3]
       const seq=flds[3]?parseInt(flds[3]):9999;
       const card={id:Date.now()*1000+Math.floor(Math.random()*999),name,_seq:seq,
-        imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,imageName:null,
-        audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a',hints:[]};
+        imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
+        audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'};
       // 图片
       const im=flds[0].match(/src="([^"]+\.(jpg|jpeg|png|gif|webp))"/i);
       if(im){const zi=nameToIdx[im[1]];if(zi!=null){
@@ -448,7 +531,6 @@ async function doImport(e){
         const blob=new Blob([buf],{type:'image/jpeg'});
         card.imageBlob=blob;card.imageDataUrl=await blobToUrl(blob);
         card.imageSizeKB=Math.round(blob.size/1024);card.origKB=card.imageSizeKB;
-        card.imageName=im[1]; // 保存原始文件名
       }}
       // 录音
       const sm=(flds[2]||'').match(/\[sound:([^\]]+)\]/);
@@ -483,8 +565,8 @@ function blobToUrl(b){return new Promise(r=>{const fr=new FileReader();fr.onload
 // ═══════════════════════════════════════════
 function addCard(){
   const id=Date.now()*1000+Math.floor(Math.random()*999);
-  cards.push({id,name:'',imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,imageName:null,
-    audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a',hints:[]});
+  cards.push({id,name:'',imageDataUrl:null,imageBlob:null,imageSizeKB:null,origKB:null,
+    audioBlob:null,audioName:null,audioDataUrl:null,audioExt:'m4a'});
   openEdit(id);
   renderList();
   // iOS Safari 要求 focus() 在用户手势的同步调用栈内，不能走 setTimeout
@@ -650,7 +732,6 @@ function toggleEdit(id){
 function buildEdit(card){
   const hasImg=!!card.imageDataUrl;
   const hasAud=!!card.audioBlob;
-  const hints=(card.hints||[]).join('\n');
   const camSvg=`<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>`;
   return `
     <div class="es">
@@ -673,11 +754,6 @@ function buildEdit(card){
           <div class="img-sz" id="isz-${card.id}">${hasImg?`已压缩 ${card.imageSizeKB}KB（原 ${card.origKB}KB）`:''}</div>
         </div>
       </div>
-    </div>
-    <div class="es">
-      <div class="elabel">提示信息（每行一条）</div>
-      <textarea class="ename" placeholder="例：红色圆圆的&#10;可以直接吃&#10;甜甜的很好吃" rows="3"
-        oninput="updField('${card.id}','hints',this.value.split('\n').filter(x=>x.trim()))">${esc(hints)}</textarea>
     </div>
     <div class="es">
       <div class="elabel">语音提示</div>
@@ -717,8 +793,6 @@ async function handleImg(e,cardId){
   const card=cards.find(c=>String(c.id)===String(cardId));
   const r=await compressImg(file,getQ());
   card.imageDataUrl=r.dataUrl;card.imageBlob=r.blob;card.imageSizeKB=r.sizeKB;card.origKB=r.origKB;
-  // 保存原始文件名（提取纯文件名，去除路径）
-  card.imageName=file.name.split(/[/\\]/).pop();
   // 更新编辑区局部UI
   const ib=document.getElementById('ib-'+cardId);
   if(ib) ib.innerHTML=`<img src="${r.dataUrl}">`;
@@ -883,60 +957,70 @@ function dlApkg(){
   document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
-// ═══════════════════════════════════════════
-// JSON 导出
-// ═══════════════════════════════════════════
-async function doExportJson(){
-  if(!cards.length)return;
-  const btn=document.getElementById('btn-json');
+async function exportYhspack(btnEl){
+  const btn=btnEl||document.getElementById('btn-yhspack');
+  if(!btn)return;
+  const origText=btn.textContent;
   btn.textContent='导出中…';btn.disabled=true;
   try{
-    // 预计算每张卡片的干扰项（与Anki导出一致）
-    const allNames=cards.map(c=>c.name);
-    const pickDistractors=idx=>{
-      const pool=allNames.filter((_,j)=>j!==idx);
-      for(let k=pool.length-1;k>0;k--){
-        const r=Math.floor(Math.random()*(k+1));
-        [pool[k],pool[r]]=[pool[r],pool[k]];
-      }
-      return pool.slice(0,3);
+    await ldScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+
+    // 纯JS hash，file:// 协议可用
+    const simpleHash=s=>{
+      let h=0;
+      for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0;}
+      return (h>>>0).toString(16).padStart(8,'0');
     };
-    // 构建 JSON 数据
-    const key=deckName.toLowerCase().replace(/[^a-z0-9]/g,'');
-    const json={
-      version:'1.0',
-      deck:{ name:deckName, key },
-      cards:cards.map((c,i)=>{
-        const dist=pickDistractors(i);
-        const opts=[c.name,...dist].sort(()=>Math.random()-0.5);
-        return {
-          id:'card_'+String(c.id).slice(-8),
-          name:c.name,
-          image:c.imageName||(c.name+'.jpg'),
-          audio:c.audioName||null,
-          seq:i+1,
-          hints:c.hints||[],
-          options:opts
-        };
-      })
-    };
-    // 打包 ZIP（含 JSON + media 文件夹）
+
+    const deckId=simpleHash(deckName);
     const zip=new JSZip();
-    zip.file('deck_'+key+'_v1.0.json',JSON.stringify(json,null,2));
-    const media=zip.folder('media');
+    const jsonCards=[];
+
     for(const c of cards){
+      const cardId=simpleHash(deckName+'::'+c.name);
+      const card={id:cardId, name:c.name};
+
+      // 图片：优先用 imageBlob（原始二进制，体积最小）
       if(c.imageBlob){
-        media.file(c.imageName||(c.name+'.jpg'),c.imageBlob);
+        const ext='jpg';
+        const path=`media/${cardId}.${ext}`;
+        zip.file(path, await c.imageBlob.arrayBuffer());
+        card.image=path;
       }
+
+      // 录音：优先用 audioBlob
+      if(c.audioBlob){
+        const ext=c.audioExt||'m4a';
+        const path=`media/${cardId}.${ext}`;
+        zip.file(path, await c.audioBlob.arrayBuffer());
+        card.audio=path;
+      }
+
+      jsonCards.push(card);
     }
+
+    const deckJson={
+      version:'1.0',
+      exportedAt:new Date().toISOString(),
+      deck:{
+        id:deckId,
+        name:deckName,
+        cards:jsonCards
+      }
+    };
+    zip.file('deck.json', JSON.stringify(deckJson, null, 2));
+
     const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='deck_'+key+'_v1.0.zip';
+    a.download=deckName+'.yhspack';
     document.body.appendChild(a);a.click();document.body.removeChild(a);
   }catch(err){
     alert('导出失败：'+err.message);
-  }finally{btn.textContent='⬇ 导出 JSON';btn.disabled=false;}
+    console.error(err);
+  }finally{
+    btn.textContent=origText;btn.disabled=false;
+  }
 }
 
 async function genApkg(){
@@ -1063,7 +1147,7 @@ async function genApkg(){
 
 
 <script>
-const VERSION = 'v47';
+const VERSION = 'v49';
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('ver-label');
   if(el) el.textContent=VERSION;
